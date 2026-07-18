@@ -9,11 +9,10 @@ Renames an existing food entry in the database (both the data file and the index
 ## Database Paths
 
 ```
-DB_ROOT = ./training-coach/my-nutritional-database/
+DB_ROOT = data/nutrition/
 ├── source_images/           # Raw nutrition label photos
-├── individual_food_data/   # Individual food .md files
-├── all_food_names.md        # Master index
-└── NUTRITION_MASTER.md     # Consolidated database
+├── individual_food_data/    # Individual food .md files
+└── all_food_names.md         # Master index
 ```
 
 ## Naming Conventions
@@ -21,9 +20,9 @@ DB_ROOT = ./training-coach/my-nutritional-database/
 All files use **timestamp prefix** in format `YYYYMMDD_HHMMSS`:
 
 ```
-individual_food_data/20260405_143022_peanut_butter_smooth.md
-source_images/20260405_143022_peanut_butter_smooth.jpg
-all_food_names.md entry: 20260405_143022: peanut_butter_smooth
+data/nutrition/individual_food_data/20260405_143022_peanut_butter_smooth.md
+data/nutrition/source_images/20260405_143022_peanut_butter_smooth.jpg
+data/nutrition/all_food_names.md entry: 20260405_143022: peanut_butter_smooth
 ```
 
 ### Food Name
@@ -35,7 +34,7 @@ all_food_names.md entry: 20260405_143022: peanut_butter_smooth
 
 ### Step 1: Locate the Food
 
-1. Read `all_food_names.md`
+1. Read `data/nutrition/all_food_names.md`
 2. Search for the food name (fuzzy match)
 3. If multiple matches → show list and ask user to confirm which one
 4. If not found → report "Food not found" with suggestions
@@ -43,9 +42,9 @@ all_food_names.md entry: 20260405_143022: peanut_butter_smooth
 ### Step 2: Confirm Current Name
 
 Show the user the current entry:
-- Current food name (from `all_food_names.md`)
-- Current data file: `individual_food_data/{timestamp}_{old_name}.md`
-- Current image (if exists): `source_images/{timestamp}_{old_name}.{ext}`
+- Current food name (from `data/nutrition/all_food_names.md`)
+- Current data file: `data/nutrition/individual_food_data/{timestamp}_{old_name}.md`
+- Current image (if exists): `data/nutrition/source_images/{timestamp}_{old_name}.{ext}`
 
 Ask user to confirm this is the correct entry before proceeding.
 
@@ -57,52 +56,42 @@ Ask user to confirm this is the correct entry before proceeding.
 
 ### Step 4: Rename Files
 
-1. Rename `individual_food_data/{timestamp}_{old_name}.md` → `individual_food_data/{timestamp}_{new_name}.md`
-2. Rename `source_images/{timestamp}_{old_name}.{ext}` → `source_images/{timestamp}_{new_name}.{ext}` (if image exists)
+1. Rename `data/nutrition/individual_food_data/{timestamp}_{old_name}.md` → `data/nutrition/individual_food_data/{timestamp}_{new_name}.md`
+2. Rename `data/nutrition/source_images/{timestamp}_{old_name}.{ext}` → `data/nutrition/source_images/{timestamp}_{new_name}.{ext}` (if image exists)
 
-### Step 5: Update all_food_names.md
+### Step 5: Update data/nutrition/all_food_names.md
 
 Replace the old entry with the new name:
 - Old: `20260405_143022: peanut_butter_smooth_500g`
 - New: `20260405_143022: peanut_butter_creamy_500g`
 
-### Step 6: Run Consolidation Script
-
-```bash
-python generate_nutrition_master_from_individual.py
-```
-
-### Step 7: Verification
+### Step 6: Verification
 
 1. Confirm the renamed data file exists with correct content
 2. Confirm the renamed image exists (if applicable)
-3. Confirm all_food_names.md has updated entry
-4. Confirm NUTRITION_MASTER.md reflects the new name
+3. Confirm `data/nutrition/all_food_names.md` has the updated entry and points to the renamed data file
 
-### Step 8: Report to User
+### Step 7: Report to User
 
 After successful rename:
 - ✅ **Renamed**: `{old_name}` → `{new_name}`
 - ✅ **Data file**: `{timestamp}_{new_name}.md`
 - ✅ **Image**: `{timestamp}_{new_name}.{ext}` (if existed)
-- ✅ **Index**: entry updated in all_food_names.md
-- ✅ **Database**: NUTRITION_MASTER.md updated
+- ✅ **Index**: entry updated in `data/nutrition/all_food_names.md`
 - **Confirmation**: [What the user confirmed at each step]
 - **Status**: [Succeeded / Failed with reason]
 
-### Step 9: Git Commit
+### Step 8: Git Commit
 
 After successful processing and before user pushes:
 
 ```bash
-cd ./my-nutritional-database
-git add -A
+git add data/nutrition/individual_food_data/ data/nutrition/source_images/ data/nutrition/all_food_names.md
 git commit -m "refactor: rename food {old_name} → {new_name} ({timestamp})
 
-- Rename individual_food_data/{timestamp}_{old_name}.md → {new_name}.md
-- Rename source_images/{timestamp}_{old_name}.{ext} → {new_name}.{ext}
-- Update all_food_names.md
-- Update NUTRITION_MASTER.md"
+- Rename data/nutrition/individual_food_data/{timestamp}_{old_name}.md → {new_name}.md
+- Rename data/nutrition/source_images/{timestamp}_{old_name}.{ext} → {new_name}.{ext}
+- Update data/nutrition/all_food_names.md"
 ```
 
 Report to user:
@@ -118,7 +107,6 @@ Report to user:
 | Old data file not found | Report error, data may be inconsistent |
 | Image file not found | Skip image rename, continue with data file only |
 | New name already exists | Ask user to choose a different name |
-| Consolidation script fails | Report error, note data may be inconsistent |
 
 ## Safety Rules
 
