@@ -1,0 +1,15 @@
+{
+  "datestr": "2026-07-18",
+  "title": "Chest & Triceps",
+  "start": 1744000000000,
+  "end": 1744003600000,
+  "movements": [
+    {
+      "name": "Barbell Bench Press",
+      "sets": [
+        {"done": true, "weight": "80", "unit": "kg", "reps": "8", "rpe": "7.5"},
+        {"done": true, "weight": "80", "unit": "kg", "reps": "8", "rpe": "8"}
+      ]
+    }
+  ]
+}

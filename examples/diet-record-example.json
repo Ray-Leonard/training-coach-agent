@@ -1,0 +1,18 @@
+[
+  {
+    "meal_type": "breakfast",
+    "time": "08:30",
+    "foods": [
+      {"name": "Greek Yogurt Bowl", "amount": 1, "unit": "serving"},
+      {"name": "Banana", "amount": 120, "unit": "g"}
+    ]
+  },
+  {
+    "meal_type": "lunch",
+    "time": "12:30",
+    "foods": [
+      {"name": "Chicken Breast", "amount": 200, "unit": "g"},
+      {"name": "White Rice", "amount": 250, "unit": "g"}
+    ]
+  }
+]

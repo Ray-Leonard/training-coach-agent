@@ -1,0 +1,22 @@
+# Reference config for Hermes profile
+# Copy relevant sections to ~/.hermes/profiles/coach/config.yaml
+
+# --- Skills ---
+# Point Hermes at the project's skills directory
+# skills:
+#   external_dirs:
+#     - /home/ubuntu/workspace/training-coach-agent-old-iron/skills
+
+# --- Working Directory ---
+# Set to the repo root so AGENTS.md is auto-loaded
+# terminal:
+#   cwd: /home/ubuntu/workspace/training-coach-agent-old-iron
+
+# --- Model Suggestions ---
+# Use a cheap model for daily tracking (diet logging, weight updates)
+# model:
+#   default: deepseek/deepseek-chat
+#
+# Switch to a powerful model for analysis (training planning, monthly reports)
+# model:
+#   default: anthropic/claude-sonnet-4

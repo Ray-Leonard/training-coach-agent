@@ -1,0 +1,13 @@
+{
+  "goal": "maintain",
+  "target_weight_kg": 75,
+  "daily_macros": {
+    "calories": 2200,
+    "protein_g": 150,
+    "carbs_g": 220,
+    "fat_g": 65
+  },
+  "training_split": "PPL",
+  "training_days_per_week": 4,
+  "tdee": 2500
+}
