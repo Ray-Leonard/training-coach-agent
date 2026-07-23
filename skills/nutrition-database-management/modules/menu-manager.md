@@ -11,7 +11,22 @@ Manages individual meal template files in `data/nutrition/menu/`. Ensures all in
 ```
 DB_ROOT = data/nutrition/
 ├── menu/                     # One .md file per meal template
-└── individual-food-data/     # Individual food data files
+└── individual-food-data/
+    ├── whole-foods/
+    │   ├── fruits/
+    │   ├── meats/
+    │   ├── dairy/
+    │   └── grains/
+    └── processed-foods/
+        ├── breads/
+        ├── snacks/
+        ├── instant/
+        ├── frozen-prepared/
+        ├── canned/
+        ├── condiments/
+        ├── dairy-processed/
+        ├── meats-processed/
+        └── beverages/
 ```
 
 ## Menu Format
@@ -58,7 +73,7 @@ Extract:
 
 For each ingredient in the user's request:
 
-1. Run `ls data/nutrition/individual-food-data/` to list all foods
+1. Search both category trees with `find data/nutrition/individual-food-data/whole-foods/ data/nutrition/individual-food-data/processed-foods/ -type f -name '*.md'`
 2. Fuzzy match the ingredient against the `ls` output; if found, note the exact food name from the filename
 3. If NOT found → this ingredient needs to be added to the database first
 
@@ -66,11 +81,11 @@ For each ingredient in the user's request:
 
 **Option A**: Ask user to provide a nutrition label image
 - → Use `skills/nutrition-database-management/modules/food-ingestion.md` to add the new food first
-- → Then re-check the `ls data/nutrition/individual-food-data/` output
+- → Then re-check both the `whole-foods/` and `processed-foods/` trees
 
 **Option B**: Ask user to provide nutrition facts directly
 - → Create the food entry following `skills/nutrition-database-management/modules/food-ingestion.md` logic
-- → Add to `data/nutrition/individual-food-data/` with timestamp
+- → Classify and add it to the appropriate `data/nutrition/individual-food-data/{food-type}/{category}/` leaf with a timestamp
 
 #### Only after ALL ingredients are confirmed to exist → proceed to Step 4
 
@@ -87,7 +102,7 @@ Use this content for an add or update:
 - [Validated Ingredient 2]: [Amount]g
 ```
 
-- Use ingredient names that **exactly match** names derived from the `ls data/nutrition/individual-food-data/` output (for reliable lookup later)
+- Use ingredient names that **exactly match** names derived from the recursive search output (for reliable lookup later)
 - Maintain consistent formatting
 - Use kebab-case for `{meal-name}` filenames
 
@@ -113,7 +128,7 @@ Summarize changes:
 
 ## Ingredient Name Matching Rules
 
-When matching user ingredient names to the `ls data/nutrition/individual-food-data/` output:
+When matching user ingredient names to the combined `whole-foods/` and `processed-foods/` search output:
 
 | User says | Database has | Action |
 |-----------|-------------|--------|
@@ -126,7 +141,7 @@ When matching user ingredient names to the `ls data/nutrition/individual-food-da
 ## Validation Checklist
 
 Before creating or editing `data/nutrition/menu/{meal-name}.md`, confirm:
-- [ ] All ingredients found in the `ls data/nutrition/individual-food-data/` output
+- [ ] All ingredients found in the combined `whole-foods/` and `processed-foods/` search output
 - [ ] Ingredient names use exact matches from database
 - [ ] Gram amounts are specified for each ingredient
 - [ ] Meal name is unique (or user wants to update existing)
@@ -146,7 +161,7 @@ Before creating or editing `data/nutrition/menu/{meal-name}.md`, confirm:
 **User**: "Add a new meal: Egg Sandwich with 2 eggs, 2 slices bread, 10g butter"
 
 **Agent**:
-1. [Lists `data/nutrition/menu/` and `data/nutrition/individual-food-data/`]
+1. [Lists `data/nutrition/menu/` and recursively searches both food category trees]
 2. "Eggs" → found as "cooked-white-shrimp" (no eggs!); "2 eggs" → need to clarify or add
 3. "Bread" → found as "multigrain-european-style-sliced-bread"
 4. "Butter" → found as "butter-salted"

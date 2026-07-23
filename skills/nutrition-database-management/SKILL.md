@@ -42,9 +42,9 @@ nutrition-database-management/
 
 ## Current Status
 
-**Production-ready**: 70+ foods in `data/nutrition/individual-food-data/`. Actively used for daily nutrition management.
+**Production-ready**: 70+ foods under `data/nutrition/individual-food-data/whole-foods/` and `data/nutrition/individual-food-data/processed-foods/`. Actively used for daily nutrition management.
 
-**⚠️ Deprecated (2026-06-25)**: The legacy consolidated-database workflow and separate food-name index are deprecated. They were workarounds for Perplexity WebUI's single-file-upload limitation. With a local agent, **run `ls data/nutrition/individual-food-data/` to list all foods, then `read_file` only the specific food(s) needed**. This avoids loading 70+ entries when only 1–3 are needed.
+**⚠️ Deprecated (2026-06-25)**: The legacy consolidated-database workflow and separate food-name index are deprecated. They were workarounds for Perplexity WebUI's single-file-upload limitation. With a local agent, **run `find data/nutrition/individual-food-data/whole-foods/ data/nutrition/individual-food-data/processed-foods/ -type f -name '*.md'` to list all foods, then `read_file` only the specific food(s) needed**. This avoids loading 70+ entries when only 1–3 are needed.
 
 **Planned future modules** (these are now separate top-level skills in the unified training-coach-agent repo, NOT sub-modules here):
 - `diet-tracker` — daily food intake logging against user goals
@@ -71,7 +71,7 @@ Read the user's request and route to the appropriate sub-module:
 All sub-modules share these:
 
 - **Database root**: `data/nutrition/`
-- **`data/nutrition/individual-food-data/`**: Single source of truth — each food has its own `.md` file. **To find a food**: run `ls data/nutrition/individual-food-data/` to list all foods, then `read_file` only the specific food(s) needed. Do NOT read the entire directory at once.
+- **`data/nutrition/individual-food-data/`**: Single source of truth. Foods are classified below `whole-foods/` (`fruits/`, `meats/`, `dairy/`, `grains/`) or `processed-foods/` (`breads/`, `snacks/`, `instant/`, `frozen-prepared/`, `canned/`, `condiments/`, `dairy-processed/`, `meats-processed/`, `beverages/`). **To find a food**: search both trees with `find data/nutrition/individual-food-data/whole-foods/ data/nutrition/individual-food-data/processed-foods/ -type f -name '*.md'`, then `read_file` only the specific food(s) needed.
 - **`data/nutrition/menu/`**: Each meal template has its own `.md` file.
 - **⚠️ Deprecated**: The legacy consolidated-database workflow and separate food-name index must not be used or referenced. They were Perplexity WebUI workarounds.
 

@@ -11,7 +11,22 @@ Renames an existing food entry in the database.
 ```
 DB_ROOT = data/nutrition/
 ├── source-images/           # Raw nutrition label photos
-└── individual-food-data/    # Individual food .md files
+└── individual-food-data/
+    ├── whole-foods/
+    │   ├── fruits/
+    │   ├── meats/
+    │   ├── dairy/
+    │   └── grains/
+    └── processed-foods/
+        ├── breads/
+        ├── snacks/
+        ├── instant/
+        ├── frozen-prepared/
+        ├── canned/
+        ├── condiments/
+        ├── dairy-processed/
+        ├── meats-processed/
+        └── beverages/
 ```
 
 ## Naming Conventions
@@ -19,7 +34,7 @@ DB_ROOT = data/nutrition/
 All files use **timestamp prefix** in format `YYYYMMDD_HHMMSS`:
 
 ```
-data/nutrition/individual-food-data/20260405_143022-peanut-butter-smooth.md
+data/nutrition/individual-food-data/processed-foods/condiments/20260405_143022-peanut-butter-smooth.md
 data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpg
 ```
 
@@ -32,7 +47,7 @@ data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpg
 
 ### Step 1: Locate the Food
 
-1. Run `ls data/nutrition/individual-food-data/` to list all foods
+1. Search both trees with `find data/nutrition/individual-food-data/whole-foods/ data/nutrition/individual-food-data/processed-foods/ -type f -name '*.md'`
 2. Fuzzy match the food name against the `ls` output
 3. If multiple matches → show list and ask user to confirm which one
 4. If not found → report "Food not found" with suggestions
@@ -41,7 +56,7 @@ data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpg
 
 Show the user the current entry:
 - Current food name (from the matched filename)
-- Current data file: `data/nutrition/individual-food-data/{timestamp}-{old-name}.md`
+- Current data file: `data/nutrition/individual-food-data/{food-type}/{category}/{timestamp}-{old-name}.md`
 - Current image (if exists): `data/nutrition/source-images/{timestamp}-{old-name}.{ext}`
 
 Ask user to confirm this is the correct entry before proceeding.
@@ -54,7 +69,7 @@ Ask user to confirm this is the correct entry before proceeding.
 
 ### Step 4: Rename Files
 
-1. Rename `data/nutrition/individual-food-data/{timestamp}-{old-name}.md` → `data/nutrition/individual-food-data/{timestamp}-{new-name}.md`
+1. Rename `data/nutrition/individual-food-data/{food-type}/{category}/{timestamp}-{old-name}.md` → `data/nutrition/individual-food-data/{food-type}/{category}/{timestamp}-{new-name}.md`
 2. Rename `data/nutrition/source-images/{timestamp}-{old-name}.{ext}` → `data/nutrition/source-images/{timestamp}-{new-name}.{ext}` (if image exists)
 
 ### Step 5: Verification

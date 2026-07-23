@@ -12,7 +12,22 @@ Ingests foods into the nutrition database from either a nutrition-label image or
 
 ```
 DB_ROOT = data/nutrition/
-├── individual-food-data/    # One timestamped .md file per food (source of truth)
+├── individual-food-data/
+│   ├── whole-foods/
+│   │   ├── fruits/
+│   │   ├── meats/
+│   │   ├── dairy/
+│   │   └── grains/
+│   └── processed-foods/
+│       ├── breads/
+│       ├── snacks/
+│       ├── instant/
+│       ├── frozen-prepared/
+│       ├── canned/
+│       ├── condiments/
+│       ├── dairy-processed/
+│       ├── meats-processed/
+│       └── beverages/
 ├── menu/                    # One kebab-case .md file per meal template
 ├── source-images/           # Nutrition label images for Path A
 ├── all_food_names.md        # Deprecated legacy food-name index; do not update
@@ -26,7 +41,7 @@ DB_ROOT = data/nutrition/
 All food data and source-image filenames use the pattern `{timestamp}-{food-name}.{ext}`. The timestamp format is `YYYYMMDD_HHMMSS`; the separator inside the timestamp remains an underscore.
 
 ```text
-data/nutrition/individual-food-data/20260405_143022-peanut-butter-smooth.md
+data/nutrition/individual-food-data/processed-foods/condiments/20260405_143022-peanut-butter-smooth.md
 data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpg
 ```
 
@@ -107,7 +122,7 @@ These steps apply to both paths after the nutrition data has been extracted or c
 
 ### C2: Duplicate Check
 
-1. Run `ls data/nutrition/individual-food-data/`
+1. Search both trees with `find data/nutrition/individual-food-data/whole-foods/ data/nutrition/individual-food-data/processed-foods/ -type f -name '*.md'`
 2. Fuzzy-match the proposed food name against the output
 3. If it exists, ask: "This food already exists as `[timestamp]-[food-name]`. Skip, rename, or overwrite?"
 4. Proceed only when the entry is new or the user has confirmed the intended action
@@ -119,9 +134,9 @@ from datetime import datetime
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 ```
 
-### C4: Create Individual Food Markdown
+### C4: Classify and Create Individual Food Markdown
 
-Create `data/nutrition/individual-food-data/{timestamp}-{food-name}.md`:
+Choose the appropriate leaf category, then create `data/nutrition/individual-food-data/{food-type}/{category}/{timestamp}-{food-name}.md`:
 
 ```markdown
 # Food Name (Title Case)
@@ -163,7 +178,7 @@ Path B skips this step because no image exists.
 For both paths:
 
 1. Confirm the Markdown file exists and follows the required format
-2. Confirm it appears in `ls data/nutrition/individual-food-data/`
+2. Confirm it appears when searching both `whole-foods/` and `processed-foods/`
 
 For Path A, also confirm the renamed image exists in `data/nutrition/source-images/`.
 
