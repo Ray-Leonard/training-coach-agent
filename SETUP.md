@@ -1,62 +1,70 @@
 # SETUP.md — Agent Onboarding Guide
 
-> **You (the AI agent) should read this file first.** It tells you how to bootstrap yourself into a working fitness coach.
+> ⚠️ **WORK IN PROGRESS — NOT READY FOR DEPLOYMENT**
+>
+> The Training Coach Agent is under active development. Only **Module 1 (Nutrition Database Management)** is complete. Modules 2–7 are stubs. Setup instructions will be finalized as more modules become functional.
+>
+> **Watch this repo** to get notified when setup goes live. PRs and contributions welcome.
 
-## What This Repo Is
+---
 
-A modular AI fitness coach system. You load skills from `skills/`, read/write user data from `data/`, and use reference knowledge from `knowledge/`.
+## What This Repo Will Be
 
-Your coach persona is **老铁 Old-Iron** — a strict but supportive Chinese-speaking gym bro. Persona lives in `coach-agent-profile/SOUL.md`.
+A modular AI fitness coach system. When complete, any AI agent pointed at this repo will be able to:
 
-## Setup: Hermes Mode
+- Maintain a personal food nutrition database
+- Track daily diet and compare against macro goals
+- Record and analyze workouts across exercises
+- Generate and adjust training programs
+- Produce monthly progress reports
+- Send proactive reminders
 
-If you're running inside [Hermes Agent](https://hermes-agent.nousresearch.com):
+You load skills from `skills/`, read/write user data from `data/`, and pull reference knowledge from `knowledge/`.
 
-1. Create a dedicated coach profile:
-   ```
-   hermes profile create coach --clone
-   ```
-2. Copy the persona:
-   ```
-   cp coach-agent-profile/SOUL.md ~/.hermes/profiles/coach/
-   ```
-3. In `~/.hermes/profiles/coach/config.yaml`, add:
-   ```yaml
-   skills:
-     external_dirs:
-       - /absolute/path/to/training-coach-agent-old-iron/skills
-   terminal:
-     cwd: /absolute/path/to/training-coach-agent-old-iron
-   ```
-4. Start Hermes with the coach profile.
+---
 
-## Setup: Generic Mode
+## Current Status
 
-If you're any other AI agent (Claude Code, Codex, Cursor, etc.):
+| Module | Status |
+|--------|--------|
+| Nutrition Database Management | ✅ Complete — ready to use |
+| User Profile Management | 📋 Planned — stub only |
+| Diet Tracker | 📋 Planned — stub only |
+| Training Analyzer | 📋 Planned — stub only |
+| Training Planning | 📋 Planned — stub only |
+| Monthly Summary | 📋 Planned — stub only |
+| Proactive Reminder | 📋 Planned — stub only |
 
-1. Set your working directory to this repo root
-2. Read `AGENTS.md` for routing instructions
-3. Load skills from `skills/` as needed
-4. Read/write user data from `data/`
+---
+
+## Planned Setup (Preview)
+
+Once ready, setup will support two modes:
+
+### Hermes Mode
+```bash
+hermes profile create coach --clone
+cp coach-agent-profile/SOUL.md ~/.hermes/profiles/coach/
+# Configure external_dirs + cwd in ~/.hermes/profiles/coach/config.yaml
+```
+
+### Generic Mode (any AI agent)
+```bash
+# 1. Set working directory to this repo root
+# 2. Read AGENTS.md for routing instructions
+# 3. Load skills from skills/ as needed
+```
+
+---
 
 ## Data Directory
 
-The `data/` directory is **git-ignored**. Each user maintains their own:
+The `data/` directory is **git-ignored**. Only the directory skeleton is tracked (via `.gitkeep` files). Each user populates their own data.
 
-- `data/nutrition/` — Food database (70+ foods)
-- `data/user/profile.json` — Goals, macros, training split
-- `data/user/body-log.json` — Weight/bodyfat history
-- `data/training/` — Workout records (JSON)
-- `data/diet/` — Daily food logs (JSON)
+---
 
-## Optional: 训记 (Xunji) Integration
+## Stay Updated
 
-If the user has a 训记 membership, they can put API keys in `.env`:
-
-```
-XUNJI_BODY_API_KEY=...
-XUNJI_DIET_API_KEY=...
-XUNJI_TRAINING_API_KEY=...
-```
-
-Skills will auto-detect these and pull data from 训记 APIs. Without them, all skills fall back to manual input (text/photos).
+- ⭐ Star the repo
+- 👀 Watch for releases
+- 🤝 Contributions welcome — see open issues
