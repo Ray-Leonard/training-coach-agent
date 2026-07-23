@@ -1,6 +1,6 @@
 ---
 name: nutrition-database-management
-description: "Central hub for nutrition database operations. Routes to sub-modules: food-image-processor, food-deleter, food-renamer, menu-manager."
+description: "Central hub for nutrition database operations. Routes to sub-modules: food-ingestion, food-deleter, food-renamer, menu-manager."
 version: 1.0.0
 author: Cagoo 加拿大鹅 (Hermes Agent)
 license: MIT
@@ -19,13 +19,13 @@ This skill is the **active entry point** for all nutrition database operations. 
 - Add a new food item (from an image or manual entry)
 - Remove an existing food item from the database
 - View or list the current food database
-- Manage or update the user's meal menu (`MENU.md`)
+- Manage or update the user's meal templates (`data/nutrition/menu/`)
 
 > **Note (2026-06-25)**: The Training Coach Meta-Agent was scrapped. Routing is handled by the unified repo's `AGENTS.md`. This skill continues to work both standalone and as part of the broader training-coach-agent system.
 
 ## Architecture
 
-**Location** (absolute path): `~/workspace/training-coach/my-nutritional-database/nutrition-database-management/`
+**Location** (relative to repo root): `skills/nutrition-database-management/`
 
 **Purpose**: Central routing hub for all nutrition database operations. Routes user requests to the appropriate sub-module.
 
@@ -33,18 +33,18 @@ This skill is the **active entry point** for all nutrition database operations. 
 nutrition-database-management/
 ├── SKILL.md                          ← This file (router)
 ├── modules/
-│   ├── food-image-processor.md       ← Add new food from image  ✅ done
+│   ├── food-ingestion.md             ← Add new food from image or web data ✅ done
 │   ├── food-deleter.md               ← Remove or list entries   ✅ done
 │   ├── food-renamer.md               ← Rename food entry        ✅ done
-│   └── menu-manager.md               ← Manage MENU.md           ✅ done
+│   └── menu-manager.md               ← Manage meal files        ✅ done
 └── references/                        # Static references (future)
 ```
 
 ## Current Status
 
-**Production-ready**: 70+ foods in `individual_food_data/`. Actively used for daily nutrition management.
+**Production-ready**: 70+ foods under `data/nutrition/individual-food-data/whole-foods/` and `data/nutrition/individual-food-data/processed-foods/`. Actively used for daily nutrition management.
 
-**⚠️ Deprecated (2026-06-25)**: `NUTRITION_MASTER.md` and `generate_nutrition_master.py` are deprecated. They were a workaround for Perplexity WebUI's single-file-upload limitation. With a local agent, **use `ls individual_food_data/` to list foods, then `read_file` only the specific food(s) needed**. Do NOT read NUTRITION_MASTER.md directly — it wastes tokens loading 70+ entries when you only need 1–3.
+**⚠️ Deprecated (2026-06-25)**: The legacy consolidated-database workflow and separate food-name index are deprecated. They were workarounds for Perplexity WebUI's single-file-upload limitation. With a local agent, **run `find data/nutrition/individual-food-data/whole-foods/ data/nutrition/individual-food-data/processed-foods/ -type f -name '*.md'` to list all foods, then `read_file` only the specific food(s) needed**. This avoids loading 70+ entries when only 1–3 are needed.
 
 **Planned future modules** (these are now separate top-level skills in the unified training-coach-agent repo, NOT sub-modules here):
 - `diet-tracker` — daily food intake logging against user goals
@@ -60,7 +60,7 @@ Read the user's request and route to the appropriate sub-module:
 
 | User says | Sub-module |
 |-----------|-----------|
-| "process this image", "add food", "new food", "save this to database" | `modules/food-image-processor.md` |
+| "process this image", "add food", "add chicken breast 200g", "add an egg", "new food", "save this to database" | `modules/food-ingestion.md` |
 | "delete food", "remove from database", "delete this entry" | `modules/food-deleter.md` |
 | "list foods", "what's in the database", "show all foods" | `modules/food-deleter.md` (read-only mode) |
 | "rename food", "rename this entry", "change the name of this food", "update food name" | `modules/food-renamer.md` |
@@ -70,12 +70,12 @@ Read the user's request and route to the appropriate sub-module:
 
 All sub-modules share these:
 
-- **Database root**: `~/workspace/training-coach/my-nutritional-database/`
-- **`individual_food_data/`**: Single source of truth — each food has its own `.md` file. **To find a food**: `ls individual_food_data/` to list all, then `read_file` only the specific food(s) needed. Do NOT read the entire directory at once.
-- **`all_food_names.md`**: Food name → file mapping for quick lookup
-- **⚠️ Deprecated**: `NUTRITION_MASTER.md` and `generate_nutrition_master.py` — do not use or reference them. They were a Perplexity WebUI workaround.
+- **Database root**: `data/nutrition/`
+- **`data/nutrition/individual-food-data/`**: Single source of truth. Foods are classified below `whole-foods/` (`fruits/`, `meats/`, `dairy/`, `grains/`) or `processed-foods/` (`breads/`, `snacks/`, `instant/`, `frozen-prepared/`, `canned/`, `condiments/`, `dairy-processed/`, `meats-processed/`, `beverages/`). **To find a food**: search both trees with `find data/nutrition/individual-food-data/whole-foods/ data/nutrition/individual-food-data/processed-foods/ -type f -name '*.md'`, then `read_file` only the specific food(s) needed.
+- **`data/nutrition/menu/`**: Each meal template has its own `.md` file.
+- **⚠️ Deprecated**: The legacy consolidated-database workflow and separate food-name index must not be used or referenced. They were Perplexity WebUI workarounds.
 
-> ⚠️ **Path Resolution**: Sub-modules use relative paths (`./my-nutritional-database/`) relative to the skill location (`~/workspace/training-coach/my-nutritional-database/`). If this absolute path does not exist on the system, **do not guess** — ask the user to confirm or provide the correct path, and update this skill's documentation accordingly.
+> ⚠️ **Path Resolution**: All paths are relative to the `training-coach-agent` repo root. Nutrition data lives under `data/nutrition/`, while this skill and its sub-modules live under `skills/nutrition-database-management/`. Work from the repo root; if that root cannot be identified, **do not guess** — ask the user to confirm it.
 
 ## Error Handling (shared)
 
