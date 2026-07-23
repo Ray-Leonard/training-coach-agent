@@ -10,7 +10,7 @@ Renames an existing food entry in the database.
 
 ```
 DB_ROOT = data/nutrition/
-├── source_images/           # Raw nutrition label photos
+├── source-images/           # Raw nutrition label photos
 └── individual-food-data/    # Individual food .md files
 ```
 
@@ -20,7 +20,7 @@ All files use **timestamp prefix** in format `YYYYMMDD_HHMMSS`:
 
 ```
 data/nutrition/individual-food-data/20260405_143022_peanut_butter_smooth.md
-data/nutrition/source_images/20260405_143022_peanut_butter_smooth.jpg
+data/nutrition/source-images/20260405_143022_peanut_butter_smooth.jpg
 ```
 
 ### Food Name
@@ -42,7 +42,7 @@ data/nutrition/source_images/20260405_143022_peanut_butter_smooth.jpg
 Show the user the current entry:
 - Current food name (from the matched filename)
 - Current data file: `data/nutrition/individual-food-data/{timestamp}_{old_name}.md`
-- Current image (if exists): `data/nutrition/source_images/{timestamp}_{old_name}.{ext}`
+- Current image (if exists): `data/nutrition/source-images/{timestamp}_{old_name}.{ext}`
 
 Ask user to confirm this is the correct entry before proceeding.
 
@@ -55,7 +55,7 @@ Ask user to confirm this is the correct entry before proceeding.
 ### Step 4: Rename Files
 
 1. Rename `data/nutrition/individual-food-data/{timestamp}_{old_name}.md` → `data/nutrition/individual-food-data/{timestamp}_{new_name}.md`
-2. Rename `data/nutrition/source_images/{timestamp}_{old_name}.{ext}` → `data/nutrition/source_images/{timestamp}_{new_name}.{ext}` (if image exists)
+2. Rename `data/nutrition/source-images/{timestamp}_{old_name}.{ext}` → `data/nutrition/source-images/{timestamp}_{new_name}.{ext}` (if image exists)
 
 ### Step 5: Verification
 

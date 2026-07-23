@@ -11,7 +11,7 @@ Removes an existing food entry from the database.
 
 ```
 DB_ROOT = data/nutrition/
-├── source_images/           # Raw nutrition label photos
+├── source-images/           # Raw nutrition label photos
 └── individual-food-data/    # Individual food .md files
 ```
 
@@ -21,7 +21,7 @@ Files use **timestamp prefix** format `YYYYMMDD_HHMMSS`:
 
 ```
 data/nutrition/individual-food-data/20260405_143022_peanut_butter_smooth.md
-data/nutrition/source_images/20260405_143022_peanut_butter_smooth.jpg
+data/nutrition/source-images/20260405_143022_peanut_butter_smooth.jpg
 ```
 
 ## Workflow
@@ -53,7 +53,7 @@ For the identified food, extract:
 - Timestamp from the matched filename
 - Expected filenames:
   - `data/nutrition/individual-food-data/{timestamp}_{food_name}.md`
-  - `data/nutrition/source_images/{timestamp}_{food_name}.jpg` (if image exists)
+  - `data/nutrition/source-images/{timestamp}_{food_name}.jpg` (if image exists)
 
 #### Step 3: Confirm with User
 
@@ -64,7 +64,7 @@ I found this entry:
   - Food: [food_name]
   - Timestamp: [YYYYMMDD_HHMMSS]
   - Data file: data/nutrition/individual-food-data/[timestamp]_[food_name].md
-  - Image: data/nutrition/source_images/[timestamp]_[food_name].jpg (if exists)
+  - Image: data/nutrition/source-images/[timestamp]_[food_name].jpg (if exists)
 
 Delete this? Reply "yes" to confirm.
 ```
@@ -75,7 +75,7 @@ Delete this? Reply "yes" to confirm.
 
 If user confirms:
 1. Delete `data/nutrition/individual-food-data/{timestamp}_{food_name}.md`
-2. Delete `data/nutrition/source_images/{timestamp}_{food_name}.jpg` (if exists)
+2. Delete `data/nutrition/source-images/{timestamp}_{food_name}.jpg` (if exists)
 
 #### Step 5: Verification
 
@@ -89,7 +89,7 @@ After deletion:
 After successful deletion:
 - ✅ **Deleted**: `[food_name]`
 - ✅ **Data file**: removed (`data/nutrition/individual-food-data/{timestamp}_{food_name}.md`)
-- ✅ **Image**: removed (`data/nutrition/source_images/{timestamp}_{food_name}.{ext}`) if existed
+- ✅ **Image**: removed (`data/nutrition/source-images/{timestamp}_{food_name}.{ext}`) if existed
 - **Confirmation**: [What user confirmed in Step 3]
 - **Status**: [Succeeded / Failed with reason]
 

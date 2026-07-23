@@ -11,7 +11,7 @@ Processes nutrition label images and creates new food entries in the database.
 
 ```
 DB_ROOT = data/nutrition/
-├── source_images/           # Raw nutrition label photos
+├── source-images/           # Raw nutrition label photos
 └── individual-food-data/    # Individual food .md files
 ```
 
@@ -23,7 +23,7 @@ All files use **timestamp prefix** in format `YYYYMMDD_HHMMSS`:
 
 ```
 data/nutrition/individual-food-data/20260405_143022_peanut_butter_smooth.md
-data/nutrition/source_images/20260405_143022_peanut_butter_smooth.jpg
+data/nutrition/source-images/20260405_143022_peanut_butter_smooth.jpg
 ```
 
 ### Food Name
@@ -40,7 +40,7 @@ data/nutrition/source_images/20260405_143022_peanut_butter_smooth.jpg
 
 Regardless of how the image is sent (Discord attachment, URL, file path, etc.):
 
-1. Copy/save the image file to `data/nutrition/source_images/` directory
+1. Copy/save the image file to `data/nutrition/source-images/` directory
 2. Do NOT rename yet — keep the original filename temporarily
 3. Note the original filename for reference
 
@@ -121,7 +121,7 @@ Example content to write:
 
 1. Rename the image saved in Step 0 to `{timestamp}_{food_name}.{ext}`
    - Use the actual file extension (jpg, png, etc.)
-2. Confirm the renamed file exists in `data/nutrition/source_images/`
+2. Confirm the renamed file exists in `data/nutrition/source-images/`
 
 ---
 
@@ -129,7 +129,7 @@ Example content to write:
 
 After processing:
 1. Confirm the markdown file exists with correct format
-2. Confirm image is renamed correctly in `data/nutrition/source_images/`
+2. Confirm image is renamed correctly in `data/nutrition/source-images/`
 3. Confirm the new data file appears in `ls data/nutrition/individual-food-data/`
 
 ---
