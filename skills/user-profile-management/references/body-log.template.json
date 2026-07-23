@@ -1,0 +1,16 @@
+[
+  {
+    "// Entry date in ISO YYYY-MM-DD format": "",
+    "date": "2026-07-23",
+    "// Xunji type; preserve historical spellings such as weist, bot, and cav_left": "",
+    "type": "weight",
+    "// Numeric measurement": "",
+    "value": 85.0,
+    "// One of: kg | % | cm": "",
+    "unit": "kg",
+    "// One of: xunji_api | manual": "",
+    "source": "xunji_api",
+    "// Optional; include only for source=xunji_api": "",
+    "xunji_id": 12585006
+  }
+]

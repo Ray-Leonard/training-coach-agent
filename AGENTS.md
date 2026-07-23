@@ -23,7 +23,7 @@ All user data in `data/` is standardized JSON. The baseline format follows **训
 
 Key data files:
 - `data/user/profile.json` — Training goals, macro targets, split
-- `data/user/body-log.json` — Weight/bodyfat entries with timestamps
+- `data/user/body-log/YYYY-MM.json` — Monthly body measurements matching the Xunji schema
 - `data/training/YYYY-MM-DD.json` — Workout records
 - `data/diet/YYYY-MM-DD.json` — Daily meals (array of meal objects)
 - `data/nutrition/individual_food_data/` — Per-food nutrition files
