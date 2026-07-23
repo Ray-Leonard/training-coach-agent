@@ -1,22 +1,23 @@
 {
   "// === Bio Info (used for BMR calculation) ===": "",
-  "gender": "male",                    // "male" | "female"
+  "sex": "female",                     // "male" | "female"
   "birth_date": "1995-03-15",         // ISO date; used to calculate age for BMR
-  "height_cm": 178,                    // Height in cm; required for BMR
+  "height_cm": 165,                    // Height in cm; required for BMR
 
   "// === Current Goal ===": "",
   "goal": "cut",                       // "bulk" | "cut" | "maintain"
-  "target_weight_kg": 75.0,            // Goal weight
-  "initial_weight_kg": 82.0,           // Weight when this goal was set
+  "target_weight_kg": 58.0,            // Goal weight
+  "initial_weight_kg": 65.0,           // Weight when this goal was set
   "target_set_date": "2026-07-23",     // Date when this goal was set
   "timeline": "2026-10-01",            // Target completion date
+  "calorie_delta_kcal": -500,          // User's chosen calorie surplus/deficit
 
   "// === Daily Macros (calculated from TDEE + goal) ===": "",
   "daily_macros": {
-    "calories_kcal": 2200,
-    "protein_g": 180,
-    "carbs_g": 220,
-    "fat_g": 49
+    "calories_kcal": 1616,
+    "protein_g": 128,
+    "carbs_g": 175,
+    "fat_g": 45
   },
 
   "// === Training Settings ===": "",
@@ -26,9 +27,12 @@
   "cardio_minutes_per_session": 30,
 
   "// === Metabolic Baseline ===": "",
-  "tdee_kcal": 2600,                   // Total Daily Energy Expenditure
-  "bmr_kcal": 1780,                    // Basal Metabolic Rate
-  "activity_level": "moderate",        // "sedentary" | "light" | "moderate" | "intense"
+  "tdee_kcal": 2116,                   // Total Daily Energy Expenditure
+  "bmr_kcal": 1365,                    // Basal Metabolic Rate
+  "activity_level": {
+    "name": "moderate",                // "sedentary" | "light" | "moderate" | "intense"
+    "multiplier": 1.55                 // Time per week mapped to a multiplier
+  },
 
   "// === Metadata ===": "",
   "updated_at": "2026-07-23T15:30:00Z" // ISO 8601 timestamp

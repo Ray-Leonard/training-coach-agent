@@ -50,16 +50,18 @@ Before **every** profile operation:
 
 If the profile is missing or empty, stop the requested workflow and begin onboarding:
 
-1. “Let's set up your profile. First: are you male or female?”
-2. “What's your birth date? (YYYY-MM-DD)”
-3. “What's your height in cm?”
-4. “What's your activity level? (sedentary / light / moderate / intense)”
-5. “Do you want to connect Xunji (训记) API for automatic body data sync? If so, I'll help you set that up.”
+Route to the onboarding workflow in `modules/profile-management.md`. A missing
+body log alone does not block profile operations; it means body-dependent
+calculations may require the user's current weight. If a non-empty profile
+exists, proceed directly to the routed operation.
 
-After collecting bio information, continue with Goal Setup in
-`modules/profile-management.md`. A missing body log alone does not block profile
-operations; it means body-dependent calculations may require the user's current
-weight. If a non-empty profile exists, proceed directly to the routed operation.
+## Xunji (训记)
+
+[Xunji](https://www.xunjiapp.com) is a Chinese fitness-tracking app available on
+iOS and Android. Its API integration is a VIP feature and requires a Xunji
+membership. When connected, it can automatically sync body weight, body-fat
+percentage, and body measurements. Users without VIP or who prefer not to
+connect can use manual entry with no loss of core profile-management features.
 
 ## Shared Conventions
 

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Dict
+from typing import Any, Dict, Mapping, Union
 
 
 ACTIVITY_MULTIPLIERS = {
@@ -19,13 +19,6 @@ PROTEIN_MULTIPLIERS = {
     "bulk": 2.0,
     "maintain": 1.8,
 }
-
-CALORIE_ADJUSTMENTS = {
-    "cut": -500,
-    "bulk": 300,
-    "maintain": 0,
-}
-
 
 def calculate_age(birth_date_str: str) -> int:
     """Return age in complete years as of today."""
@@ -43,47 +36,64 @@ def calculate_age(birth_date_str: str) -> int:
 
 
 def calculate_bmr(
-    gender: str, weight_kg: float, height_cm: float, age: int
+    sex: str, weight_kg: float, height_cm: float, age: int
 ) -> float:
     """Calculate Mifflin-St Jeor basal metabolic rate in kcal/day."""
-    normalized_gender = str(gender).lower()
-    if normalized_gender not in {"male", "female"}:
-        raise ValueError("gender must be 'male' or 'female'")
+    normalized_sex = str(sex).lower()
+    if normalized_sex not in {"male", "female"}:
+        raise ValueError("sex must be 'male' or 'female'")
     if weight_kg <= 0 or height_cm <= 0 or age < 0:
         raise ValueError("weight and height must be positive; age cannot be negative")
 
-    gender_constant = 5 if normalized_gender == "male" else -161
+    sex_constant = 5 if normalized_sex == "male" else -161
     return round(
         10 * float(weight_kg)
         + 6.25 * float(height_cm)
         - 5 * int(age)
-        + gender_constant,
+        + sex_constant,
         2,
     )
 
 
-def calculate_tdee(bmr: float, activity_level: str) -> float:
+def calculate_tdee(
+    bmr: float, activity_level: Union[str, Mapping[str, Any]]
+) -> float:
     """Calculate total daily energy expenditure from BMR and activity."""
-    normalized_level = str(activity_level).lower()
-    if normalized_level not in ACTIVITY_MULTIPLIERS:
-        choices = ", ".join(ACTIVITY_MULTIPLIERS)
-        raise ValueError(f"activity_level must be one of: {choices}")
     if bmr <= 0:
         raise ValueError("bmr must be positive")
-    return round(float(bmr) * ACTIVITY_MULTIPLIERS[normalized_level], 2)
+
+    if isinstance(activity_level, Mapping):
+        try:
+            multiplier = float(activity_level["multiplier"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(
+                "activity_level dict must contain a numeric multiplier"
+            ) from exc
+    else:
+        normalized_level = str(activity_level).lower()
+        if normalized_level not in ACTIVITY_MULTIPLIERS:
+            choices = ", ".join(ACTIVITY_MULTIPLIERS)
+            raise ValueError(f"activity_level must be one of: {choices}")
+        multiplier = ACTIVITY_MULTIPLIERS[normalized_level]
+    if multiplier <= 0:
+        raise ValueError("activity multiplier must be positive")
+    return round(float(bmr) * multiplier, 2)
 
 
 def calculate_macros(
-    tdee: float, goal: str, target_weight_kg: float
+    tdee: float, goal: str, target_weight_kg: float, calorie_delta: float
 ) -> Dict[str, int]:
     """Return rounded daily calorie and macronutrient targets."""
     normalized_goal = str(goal).lower()
-    if normalized_goal not in CALORIE_ADJUSTMENTS:
+    if normalized_goal not in PROTEIN_MULTIPLIERS:
         raise ValueError("goal must be 'cut', 'bulk', or 'maintain'")
     if tdee <= 0 or target_weight_kg <= 0:
         raise ValueError("tdee and target_weight_kg must be positive")
 
-    calories = float(tdee) + CALORIE_ADJUSTMENTS[normalized_goal]
+    try:
+        calories = float(tdee) + float(calorie_delta)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("calorie_delta must be numeric") from exc
     if calories <= 0:
         raise ValueError("calculated calories must be positive")
 
