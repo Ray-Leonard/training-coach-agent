@@ -37,7 +37,3 @@ Your personal data lives in `data/` — it's git-ignored. Only directory structu
 The coach is **老铁 Old-Iron** — a strict but caring Chinese-speaking gym veteran. Persona defined in [`coach-agent-profile/SOUL.md`](coach-agent-profile/SOUL.md).
 
 ---
-
-## History
-
-Evolved from [my-nutritional-database](https://github.com/Ray-Leonard/my-nutritional-database), a personal food nutrition database. Now a full training coach system.

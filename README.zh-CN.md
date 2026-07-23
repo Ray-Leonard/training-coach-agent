@@ -37,7 +37,3 @@
 教练名叫 **老铁 Old-Iron**——一个严格但真心希望你进步的中文健身老炮。人设定义在 [`coach-agent-profile/SOUL.md`](coach-agent-profile/SOUL.md)。
 
 ---
-
-## 项目沿革
-
-本项目的前身是 [my-nutritional-database](https://github.com/Ray-Leonard/my-nutritional-database)，一个个人食物营养数据库。现已发展为完整的 AI 健身教练系统。
