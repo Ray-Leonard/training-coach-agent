@@ -20,8 +20,8 @@ DB_ROOT = data/nutrition/
 Files use **timestamp prefix** format `YYYYMMDD_HHMMSS`:
 
 ```
-data/nutrition/individual-food-data/20260405_143022_peanut_butter_smooth.md
-data/nutrition/source-images/20260405_143022_peanut_butter_smooth.jpg
+data/nutrition/individual-food-data/20260405_143022-peanut-butter-smooth.md
+data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpg
 ```
 
 ## Workflow
@@ -52,8 +52,8 @@ If user specifies which food to delete:
 For the identified food, extract:
 - Timestamp from the matched filename
 - Expected filenames:
-  - `data/nutrition/individual-food-data/{timestamp}_{food_name}.md`
-  - `data/nutrition/source-images/{timestamp}_{food_name}.jpg` (if image exists)
+  - `data/nutrition/individual-food-data/{timestamp}-{food-name}.md`
+  - `data/nutrition/source-images/{timestamp}-{food-name}.jpg` (if image exists)
 
 #### Step 3: Confirm with User
 
@@ -61,10 +61,10 @@ Show the user what will be deleted and ask for explicit confirmation:
 
 ```
 I found this entry:
-  - Food: [food_name]
+  - Food: [food-name]
   - Timestamp: [YYYYMMDD_HHMMSS]
-  - Data file: data/nutrition/individual-food-data/[timestamp]_[food_name].md
-  - Image: data/nutrition/source-images/[timestamp]_[food_name].jpg (if exists)
+  - Data file: data/nutrition/individual-food-data/[timestamp]-[food-name].md
+  - Image: data/nutrition/source-images/[timestamp]-[food-name].jpg (if exists)
 
 Delete this? Reply "yes" to confirm.
 ```
@@ -74,8 +74,8 @@ Delete this? Reply "yes" to confirm.
 #### Step 4: Delete Files
 
 If user confirms:
-1. Delete `data/nutrition/individual-food-data/{timestamp}_{food_name}.md`
-2. Delete `data/nutrition/source-images/{timestamp}_{food_name}.jpg` (if exists)
+1. Delete `data/nutrition/individual-food-data/{timestamp}-{food-name}.md`
+2. Delete `data/nutrition/source-images/{timestamp}-{food-name}.jpg` (if exists)
 
 #### Step 5: Verification
 
@@ -87,9 +87,9 @@ After deletion:
 #### Step 6: Report to User
 
 After successful deletion:
-- ✅ **Deleted**: `[food_name]`
-- ✅ **Data file**: removed (`data/nutrition/individual-food-data/{timestamp}_{food_name}.md`)
-- ✅ **Image**: removed (`data/nutrition/source-images/{timestamp}_{food_name}.{ext}`) if existed
+- ✅ **Deleted**: `[food-name]`
+- ✅ **Data file**: removed (`data/nutrition/individual-food-data/{timestamp}-{food-name}.md`)
+- ✅ **Image**: removed (`data/nutrition/source-images/{timestamp}-{food-name}.{ext}`) if existed
 - **Confirmation**: [What user confirmed in Step 3]
 - **Status**: [Succeeded / Failed with reason]
 

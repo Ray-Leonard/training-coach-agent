@@ -1,6 +1,6 @@
 ---
 name: nutrition-database-management
-description: "Central hub for nutrition database operations. Routes to sub-modules: food-image-processor, food-deleter, food-renamer, menu-manager."
+description: "Central hub for nutrition database operations. Routes to sub-modules: food-ingestion, food-deleter, food-renamer, menu-manager."
 version: 1.0.0
 author: Cagoo 加拿大鹅 (Hermes Agent)
 license: MIT
@@ -33,7 +33,7 @@ This skill is the **active entry point** for all nutrition database operations. 
 nutrition-database-management/
 ├── SKILL.md                          ← This file (router)
 ├── modules/
-│   ├── food-image-processor.md       ← Add new food from image  ✅ done
+│   ├── food-ingestion.md             ← Add new food from image or web data ✅ done
 │   ├── food-deleter.md               ← Remove or list entries   ✅ done
 │   ├── food-renamer.md               ← Rename food entry        ✅ done
 │   └── menu-manager.md               ← Manage meal files        ✅ done
@@ -60,7 +60,7 @@ Read the user's request and route to the appropriate sub-module:
 
 | User says | Sub-module |
 |-----------|-----------|
-| "process this image", "add food", "new food", "save this to database" | `modules/food-image-processor.md` |
+| "process this image", "add food", "add chicken breast 200g", "add an egg", "new food", "save this to database" | `modules/food-ingestion.md` |
 | "delete food", "remove from database", "delete this entry" | `modules/food-deleter.md` |
 | "list foods", "what's in the database", "show all foods" | `modules/food-deleter.md` (read-only mode) |
 | "rename food", "rename this entry", "change the name of this food", "update food name" | `modules/food-renamer.md` |

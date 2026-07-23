@@ -19,14 +19,14 @@ DB_ROOT = data/nutrition/
 All files use **timestamp prefix** in format `YYYYMMDD_HHMMSS`:
 
 ```
-data/nutrition/individual-food-data/20260405_143022_peanut_butter_smooth.md
-data/nutrition/source-images/20260405_143022_peanut_butter_smooth.jpg
+data/nutrition/individual-food-data/20260405_143022-peanut-butter-smooth.md
+data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpg
 ```
 
 ### Food Name
 
-- snake_case: `peanut_butter_smooth_500g`, `clif_bar_white_chocolate_macadamia_nut_68g`
-- Include weight/size if relevant: `oat_chocolate_bar_26g`
+- kebab-case: `peanut-butter-smooth-500g`, `clif-bar-white-chocolate-macadamia-nut-68g`
+- Include weight/size if relevant: `oat-chocolate-bar-26g`
 
 ## Workflow
 
@@ -41,21 +41,21 @@ data/nutrition/source-images/20260405_143022_peanut_butter_smooth.jpg
 
 Show the user the current entry:
 - Current food name (from the matched filename)
-- Current data file: `data/nutrition/individual-food-data/{timestamp}_{old_name}.md`
-- Current image (if exists): `data/nutrition/source-images/{timestamp}_{old_name}.{ext}`
+- Current data file: `data/nutrition/individual-food-data/{timestamp}-{old-name}.md`
+- Current image (if exists): `data/nutrition/source-images/{timestamp}-{old-name}.{ext}`
 
 Ask user to confirm this is the correct entry before proceeding.
 
 ### Step 3: Confirm New Name
 
 1. Ask user for the new name if not already provided. 
-2. convert the user input name to snake_case naming convention if it did not follow the convension. 
+2. Convert the user input name to kebab-case if it does not follow the convention.
 3. Ask user to confirm the new name before proceeding
 
 ### Step 4: Rename Files
 
-1. Rename `data/nutrition/individual-food-data/{timestamp}_{old_name}.md` → `data/nutrition/individual-food-data/{timestamp}_{new_name}.md`
-2. Rename `data/nutrition/source-images/{timestamp}_{old_name}.{ext}` → `data/nutrition/source-images/{timestamp}_{new_name}.{ext}` (if image exists)
+1. Rename `data/nutrition/individual-food-data/{timestamp}-{old-name}.md` → `data/nutrition/individual-food-data/{timestamp}-{new-name}.md`
+2. Rename `data/nutrition/source-images/{timestamp}-{old-name}.{ext}` → `data/nutrition/source-images/{timestamp}-{new-name}.{ext}` (if image exists)
 
 ### Step 5: Verification
 
@@ -66,9 +66,9 @@ Ask user to confirm this is the correct entry before proceeding.
 ### Step 6: Report to User
 
 After successful rename:
-- ✅ **Renamed**: `{old_name}` → `{new_name}`
-- ✅ **Data file**: `{timestamp}_{new_name}.md`
-- ✅ **Image**: `{timestamp}_{new_name}.{ext}` (if existed)
+- ✅ **Renamed**: `{old-name}` → `{new-name}`
+- ✅ **Data file**: `{timestamp}-{new-name}.md`
+- ✅ **Image**: `{timestamp}-{new-name}.{ext}` (if existed)
 - **Confirmation**: [What the user confirmed at each step]
 - **Status**: [Succeeded / Failed with reason]
 
