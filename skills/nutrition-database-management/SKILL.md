@@ -19,7 +19,7 @@ This skill is the **active entry point** for all nutrition database operations. 
 - Add a new food item (from an image or manual entry)
 - Remove an existing food item from the database
 - View or list the current food database
-- Manage or update the user's meal menu (`MENU.md`)
+- Manage or update the user's meal templates (`data/nutrition/menu/`)
 
 > **Note (2026-06-25)**: The Training Coach Meta-Agent was scrapped. Routing is handled by the unified repo's `AGENTS.md`. This skill continues to work both standalone and as part of the broader training-coach-agent system.
 
@@ -36,15 +36,15 @@ nutrition-database-management/
 │   ├── food-image-processor.md       ← Add new food from image  ✅ done
 │   ├── food-deleter.md               ← Remove or list entries   ✅ done
 │   ├── food-renamer.md               ← Rename food entry        ✅ done
-│   └── menu-manager.md               ← Manage MENU.md           ✅ done
+│   └── menu-manager.md               ← Manage meal files        ✅ done
 └── references/                        # Static references (future)
 ```
 
 ## Current Status
 
-**Production-ready**: 70+ foods in `data/nutrition/individual_food_data/`. Actively used for daily nutrition management.
+**Production-ready**: 70+ foods in `data/nutrition/individual-food-data/`. Actively used for daily nutrition management.
 
-**⚠️ Deprecated (2026-06-25)**: The legacy consolidated-database workflow is deprecated. It was a workaround for Perplexity WebUI's single-file-upload limitation. With a local agent, **use `ls data/nutrition/individual_food_data/` to list foods, then `read_file` only the specific food(s) needed**. This avoids loading 70+ entries when only 1–3 are needed.
+**⚠️ Deprecated (2026-06-25)**: The legacy consolidated-database workflow and separate food-name index are deprecated. They were workarounds for Perplexity WebUI's single-file-upload limitation. With a local agent, **run `ls data/nutrition/individual-food-data/` to list all foods, then `read_file` only the specific food(s) needed**. This avoids loading 70+ entries when only 1–3 are needed.
 
 **Planned future modules** (these are now separate top-level skills in the unified training-coach-agent repo, NOT sub-modules here):
 - `diet-tracker` — daily food intake logging against user goals
@@ -71,9 +71,9 @@ Read the user's request and route to the appropriate sub-module:
 All sub-modules share these:
 
 - **Database root**: `data/nutrition/`
-- **`data/nutrition/individual_food_data/`**: Single source of truth — each food has its own `.md` file. **To find a food**: `ls data/nutrition/individual_food_data/` to list all, then `read_file` only the specific food(s) needed. Do NOT read the entire directory at once.
-- **`data/nutrition/all_food_names.md`**: Food name → file mapping for quick lookup
-- **⚠️ Deprecated**: The legacy consolidated-database workflow must not be used or referenced. It was a Perplexity WebUI workaround.
+- **`data/nutrition/individual-food-data/`**: Single source of truth — each food has its own `.md` file. **To find a food**: run `ls data/nutrition/individual-food-data/` to list all foods, then `read_file` only the specific food(s) needed. Do NOT read the entire directory at once.
+- **`data/nutrition/menu/`**: Each meal template has its own `.md` file.
+- **⚠️ Deprecated**: The legacy consolidated-database workflow and separate food-name index must not be used or referenced. They were Perplexity WebUI workarounds.
 
 > ⚠️ **Path Resolution**: All paths are relative to the `training-coach-agent` repo root. Nutrition data lives under `data/nutrition/`, while this skill and its sub-modules live under `skills/nutrition-database-management/`. Work from the repo root; if that root cannot be identified, **do not guess** — ask the user to confirm it.
 

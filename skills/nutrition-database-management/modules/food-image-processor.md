@@ -12,8 +12,7 @@ Processes nutrition label images and creates new food entries in the database.
 ```
 DB_ROOT = data/nutrition/
 ├── source_images/           # Raw nutrition label photos
-├── individual_food_data/    # Individual food .md files
-└── all_food_names.md         # Master index
+└── individual-food-data/    # Individual food .md files
 ```
 
 ## Naming Conventions
@@ -23,9 +22,8 @@ DB_ROOT = data/nutrition/
 All files use **timestamp prefix** in format `YYYYMMDD_HHMMSS`:
 
 ```
-data/nutrition/individual_food_data/20260405_143022_peanut_butter_smooth.md
+data/nutrition/individual-food-data/20260405_143022_peanut_butter_smooth.md
 data/nutrition/source_images/20260405_143022_peanut_butter_smooth.jpg
-data/nutrition/all_food_names.md entry: 20260405_143022: peanut_butter_smooth
 ```
 
 ### Food Name
@@ -73,8 +71,8 @@ Extract these fields:
 
 ### Step 3: Duplicate Check
 
-1. Read `data/nutrition/all_food_names.md`
-2. Check if a similar food already exists (fuzzy name match)
+1. Run `ls data/nutrition/individual-food-data/` to list all foods
+2. Fuzzy match the proposed food name against the `ls` output
 3. If exists → ask user: "This food already exists as `[timestamp]: [name]`. Skip, rename, or overwrite?"
 4. If new → proceed
 
@@ -89,19 +87,9 @@ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 ---
 
-### Step 5: Update data/nutrition/all_food_names.md
+### Step 5: Create Individual Food Markdown
 
-Append new entry:
-```
-YYYYMMDD_HHMMSS: food_name
-```
-Example: `20260405_143022: peanut_butter_smooth_500g`
-
----
-
-### Step 6: Create Individual Food Markdown
-
-Create `data/nutrition/individual_food_data/{timestamp}_{food_name}.md`:
+Create `data/nutrition/individual-food-data/{timestamp}_{food_name}.md`:
 
 Example content to write:
 ```markdown
@@ -129,7 +117,7 @@ Example content to write:
 
 ---
 
-### Step 7: Rename and Organize Image
+### Step 6: Rename and Organize Image
 
 1. Rename the image saved in Step 0 to `{timestamp}_{food_name}.{ext}`
    - Use the actual file extension (jpg, png, etc.)
@@ -137,41 +125,23 @@ Example content to write:
 
 ---
 
-### Step 8: Verification
+### Step 7: Verification
 
 After processing:
 1. Confirm the markdown file exists with correct format
 2. Confirm image is renamed correctly in `data/nutrition/source_images/`
-3. Confirm `data/nutrition/all_food_names.md` has the new entry and maps it to the correct individual data file
+3. Confirm the new data file appears in `ls data/nutrition/individual-food-data/`
 
 ---
 
-### Step 9: Report to User
+### Step 8: Report to User
 
 After successful processing, report:
 
 - ✅ **Image**: saved as `{timestamp}_{food_name}.{ext}`
 - ✅ **Data file**: saved as `{timestamp}_{food_name}.md`
-- ✅ **Index**: entry added to `data/nutrition/all_food_names.md`
 - **Confirmation**: [Describe what the user confirmed — e.g., "User confirmed name: peanut_butter_smooth_500g" or "User chose to skip duplicate: clif_bar_white_chocolate_macadamia_nut"]
 - **Status**: [Succeeded / Failed with reason]
-
-### Step 10: Git Commit
-
-After successful processing and before user pushes:
-
-```bash
-git add data/nutrition/individual_food_data/ data/nutrition/source_images/ data/nutrition/all_food_names.md
-git commit -m "feat: add food {food_name} ({timestamp})
-
-- Add data/nutrition/individual_food_data/{timestamp}_{food_name}.md
-- Add data/nutrition/source_images/{timestamp}_{food_name}.{ext}
-- Update data/nutrition/all_food_names.md"
-```
-
-Report to user:
-- ✅ **Committed**: `[commit hash]` — `feat: add food {food_name} ({timestamp})`
-- 📤 **Ready to push** — user should run `git push` when ready
 
 ## Error Handling
 
