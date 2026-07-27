@@ -70,6 +70,9 @@ connect can use manual entry with no loss of core profile-management features.
 - Profile: `data/user/profile.json` (single file, overwrite on update)
 - All dates: ISO `YYYY-MM-DD`
 - All timestamps: ISO 8601 `YYYY-MM-DDTHH:MM:SSZ`
+- **Timezone**: All date calculations and daily cutoffs use the user's IANA timezone
+  from `profile.timezone`. Scripts that call `date.today()` must use the profile's
+  timezone, not the system clock.
 - Xunji API key: `.env` variable `SYNFIT_BODY_DATA_API_KEY`
 - Use the scripts in `scripts/` for calculations and API/data merging; do not do
   arithmetic in the model.

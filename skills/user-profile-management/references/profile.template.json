@@ -3,6 +3,7 @@
   "sex": "female",                     // "male" | "female"
   "birth_date": "1995-03-15",         // ISO date; used to calculate age for BMR
   "height_cm": 165,                    // Height in cm; required for BMR
+  "timezone": "America/Toronto",      // IANA timezone; all dates/timestamps use this
 
   "// === Current Goal ===": "",
   "goal": "cut",                       // "bulk" | "cut" | "maintain"

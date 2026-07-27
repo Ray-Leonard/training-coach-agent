@@ -10,6 +10,7 @@ Called when the router detects a missing or empty `data/user/profile.json`.
 1. Ask: “What's your sex? (male/female)”
 2. Ask: “What's your birth date? (YYYY-MM-DD)”
 3. Ask: “What's your height in cm?”
+4. Ask: "What's your timezone?" (IANA format, e.g. "America/Toronto", "Asia/Shanghai"). All dates, timestamps, and daily cutoffs use this timezone.
 4. Ask: “What's your activity level?” Explain the choices:
    - `sedentary`: under 2 hours of exercise per week (desk job, no intentional
      exercise);
