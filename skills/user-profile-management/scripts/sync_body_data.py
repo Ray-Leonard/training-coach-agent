@@ -258,13 +258,13 @@ def save_body_log(records: Iterable[Dict[str, Any]], month: str) -> Path:
             f"{normalized_month}-"
         )
     ]
-    _KEEP_FIELDS = {"date", "type", "value", "unit", "source", "xunji_id"}
+    _FIELD_ORDER = ["date", "type", "value", "unit", "source", "xunji_id"]
+    _KEEP_FIELDS = set(_FIELD_ORDER)
     for r in selected:
         r.pop("datestr", None)
-        r.pop("weight", None)   # duplicate of value
+        r.pop("weight", None)
         r.pop("label", None)
         r.pop("label_en", None)
-        # normalize source and xunji_id from id
         if not r.get("source"):
             r["source"] = "xunji_api" if r.get("id") is not None else "xunji_api"
         if r.get("id") is not None and not r.get("xunji_id"):
@@ -273,6 +273,11 @@ def save_body_log(records: Iterable[Dict[str, Any]], month: str) -> Path:
         for k in list(r):
             if k not in _KEEP_FIELDS:
                 del r[k]
+    # Reorder fields for consistent output
+    selected = [
+        {k: r[k] for k in _FIELD_ORDER if k in r}
+        for r in selected
+    ]
     selected.sort(key=lambda item: (item.get("date", ""), item.get("type", "")), reverse=True)
     BODY_LOG_DIR.mkdir(parents=True, exist_ok=True)
     destination = BODY_LOG_DIR / f"{normalized_month}.json"
