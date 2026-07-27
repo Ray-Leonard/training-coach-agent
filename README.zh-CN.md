@@ -13,7 +13,7 @@
 | # | 模块 | 状态 | 功能 |
 |---|------|------|------|
 | 1 | **Nutrition Database Management** | ✅ 已完成 | 维护你的个人营养数据库。支持营养标签 OCR 识别、Web 搜索两种入库方式。按「天然食材 / 加工食品」双分类管理。管理餐单模板。 |
-| 2 | **User Profile Management** | 📋 规划中 | 记录体重、体脂、围度。设定训练目标和宏量营养素配比。计算 TDEE。 |
+| 2 | **User Profile Management** | ✅ 已完成 | 身体数据管理（体重/体脂/围度）+ 训记 API 同步。目标设定支持体重和体脂%两种格式。自动计算 TDEE、宏量素、时间线。Activity multiplier 从训练安排自动推导。 |
 | 3 | **Diet Tracker** | 📋 规划中 | 记录每日饮食、计算营养素摄入、对比目标。支持手动输入和训记 App 同步。 |
 | 4 | **Training Analyzer** | 📋 规划中 | 记录训练数据、追踪动作进步、检测 PR、生成逐次分析报告。支持训记同步。 |
 | 5 | **Training Planning** | 📋 规划中 | 基于你的训练历史和目标，制定和调整训练计划（5×5、PPL、Ivysaur 等）。含 Deload 周计划。 |
