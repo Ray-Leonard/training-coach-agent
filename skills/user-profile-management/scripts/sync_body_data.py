@@ -297,3 +297,42 @@ __all__ = [
     "upsert_body_data",
     "save_body_log",
 ]
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Xunji (Synfit) Body API CLI")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    q = sub.add_parser("query", help="Query body data from Xunji")
+    q.add_argument("--start", required=True, help="Start date (YYYY-MM-DD)")
+    q.add_argument("--end", required=True, help="End date (YYYY-MM-DD)")
+    q.add_argument("--types", nargs="*", help="Filter by type (e.g. weight bodyfat)")
+
+    s = sub.add_parser("sync", help="Full sync: query all + save locally")
+    s.add_argument("--start", default="2020-01-01", help="Start date (default: 2020-01-01)")
+    s.add_argument("--end", default="2099-12-31", help="End date (default: far future)")
+
+    args = parser.parse_args()
+
+    if args.cmd == "query":
+        records = query_body_data(args.start, args.end, types=args.types)
+        print(f"Found {len(records)} records")
+        if records:
+            print(json.dumps(records[:10], ensure_ascii=False, indent=2))
+            if len(records) > 10:
+                print(f"... and {len(records) - 10} more")
+
+    elif args.cmd == "sync":
+        records = query_body_data(args.start, args.end)
+        merged = merge_body_logs(records, [])
+        by_month: dict[str, list] = {}
+        for r in merged:
+            d = r.get("date", "")
+            if len(d) >= 7:
+                by_month.setdefault(d[:7], []).append(r)
+        for month in sorted(by_month):
+            path = save_body_log(by_month[month], month)
+            print(f"{month}: {len(by_month[month])} records → {path}")
+        print(f"Synced {len(merged)} records into {len(by_month)} monthly files")

@@ -61,3 +61,20 @@ def format_summary(diff_result: Mapping[str, int]) -> str:
 
 
 __all__ = ["count_diff", "format_summary"]
+
+
+if __name__ == "__main__":
+    import argparse, json, sys
+
+    p = argparse.ArgumentParser(description="Compare two body-log JSON files")
+    p.add_argument("merged", help="Path to merged records JSON")
+    p.add_argument("local", help="Path to local records JSON")
+
+    args = p.parse_args()
+    with open(args.merged) as f:
+        merged = json.load(f)
+    with open(args.local) as f:
+        local = json.load(f)
+
+    result = count_diff(merged, local)
+    print(format_summary(result))

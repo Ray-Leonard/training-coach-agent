@@ -137,3 +137,28 @@ __all__ = [
     "calculate_tdee",
     "calculate_macros",
 ]
+
+
+if __name__ == "__main__":
+    import argparse, sys
+
+    p = argparse.ArgumentParser(description="BMR / TDEE / macro calculator")
+    p.add_argument("--sex", required=True, choices=["male", "female"])
+    p.add_argument("--birth", required=True, help="Birth date (YYYY-MM-DD)")
+    p.add_argument("--height", type=float, required=True, help="Height in cm")
+    p.add_argument("--weight", type=float, required=True, help="Weight in kg")
+    p.add_argument("--activity", default="moderate", choices=["sedentary", "light", "moderate", "intense"])
+    p.add_argument("--goal", default="maintain", choices=["cut", "bulk", "maintain"])
+    p.add_argument("--delta", type=float, default=0, help="Calorie delta (e.g. -500 for cut)")
+
+    args = p.parse_args()
+    age = calculate_age(args.birth)
+    bmr = calculate_bmr(args.sex, args.weight, args.height, age)
+    tdee = calculate_tdee(bmr, args.activity)
+    macros = calculate_macros(tdee, args.goal, args.weight, args.delta)
+
+    print(f"Age: {age}")
+    print(f"BMR: {bmr} kcal")
+    print(f"TDEE: {tdee} kcal")
+    print(f"Goal: {args.goal} (delta={args.delta:+.0f})")
+    print(f"Macros: {macros['calories_kcal']} kcal | P:{macros['protein_g']}g C:{macros['carbs_g']}g F:{macros['fat_g']}g")
