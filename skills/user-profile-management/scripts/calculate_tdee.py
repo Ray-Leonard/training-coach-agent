@@ -4,8 +4,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Any, Dict, Mapping, Union
-
+from typing import Dict
 
 
 def _read_profile_timezone():
@@ -19,13 +18,6 @@ def _read_profile_timezone():
     except Exception:
         return None
 
-
-ACTIVITY_MULTIPLIERS = {
-    "sedentary": 1.2,
-    "light": 1.375,
-    "moderate": 1.55,
-    "intense": 1.725,
-}
 
 PROTEIN_MULTIPLIERS = {
     "cut": 2.2,
@@ -75,29 +67,13 @@ def calculate_bmr(
     )
 
 
-def calculate_tdee(
-    bmr: float, activity_level: Union[str, Mapping[str, Any]]
-) -> float:
-    """Calculate total daily energy expenditure from BMR and activity."""
+def calculate_tdee(bmr: float, multiplier: float) -> float:
+    """Calculate total daily energy expenditure from BMR and activity multiplier."""
     if bmr <= 0:
         raise ValueError("bmr must be positive")
-
-    if isinstance(activity_level, Mapping):
-        try:
-            multiplier = float(activity_level["multiplier"])
-        except (KeyError, TypeError, ValueError) as exc:
-            raise ValueError(
-                "activity_level dict must contain a numeric multiplier"
-            ) from exc
-    else:
-        normalized_level = str(activity_level).lower()
-        if normalized_level not in ACTIVITY_MULTIPLIERS:
-            choices = ", ".join(ACTIVITY_MULTIPLIERS)
-            raise ValueError(f"activity_level must be one of: {choices}")
-        multiplier = ACTIVITY_MULTIPLIERS[normalized_level]
     if multiplier <= 0:
-        raise ValueError("activity multiplier must be positive")
-    return round(float(bmr) * multiplier, 2)
+        raise ValueError("multiplier must be positive")
+    return round(float(bmr) * float(multiplier), 2)
 
 
 def calculate_macros(
@@ -140,25 +116,26 @@ __all__ = [
 
 
 if __name__ == "__main__":
-    import argparse, sys
+    import argparse
 
     p = argparse.ArgumentParser(description="BMR / TDEE / macro calculator")
     p.add_argument("--sex", required=True, choices=["male", "female"])
     p.add_argument("--birth", required=True, help="Birth date (YYYY-MM-DD)")
     p.add_argument("--height", type=float, required=True, help="Height in cm")
-    p.add_argument("--weight", type=float, required=True, help="Weight in kg")
-    p.add_argument("--activity", default="moderate", choices=["sedentary", "light", "moderate", "intense"])
+    p.add_argument("--weight", type=float, required=True, help="Weight in kg for BMR")
+    p.add_argument("--target", type=float, required=True, help="Target weight in kg for macros")
+    p.add_argument("--multiplier", type=float, default=1.55, help="Activity multiplier (e.g. 1.55)")
     p.add_argument("--goal", default="maintain", choices=["cut", "bulk", "maintain"])
     p.add_argument("--delta", type=float, default=0, help="Calorie delta (e.g. -500 for cut)")
 
     args = p.parse_args()
     age = calculate_age(args.birth)
     bmr = calculate_bmr(args.sex, args.weight, args.height, age)
-    tdee = calculate_tdee(bmr, args.activity)
-    macros = calculate_macros(tdee, args.goal, args.weight, args.delta)
+    tdee = calculate_tdee(bmr, args.multiplier)
+    macros = calculate_macros(tdee, args.goal, args.target, args.delta)
 
     print(f"Age: {age}")
     print(f"BMR: {bmr} kcal")
-    print(f"TDEE: {tdee} kcal")
+    print(f"TDEE: {tdee} kcal (×{args.multiplier})")
     print(f"Goal: {args.goal} (delta={args.delta:+.0f})")
     print(f"Macros: {macros['calories_kcal']} kcal | P:{macros['protein_g']}g C:{macros['carbs_g']}g F:{macros['fat_g']}g")

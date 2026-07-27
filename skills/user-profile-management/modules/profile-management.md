@@ -7,19 +7,11 @@ calculation. Do not calculate these values in the model.
 
 Called when the router detects a missing or empty `data/user/profile.json`.
 
-1. Ask: “What's your sex? (male/female)”
-2. Ask: “What's your birth date? (YYYY-MM-DD)”
-3. Ask: “What's your height in cm?”
+1. Ask: "What's your sex? (male/female)"
+2. Ask: "What's your birth date? (YYYY-MM-DD)"
+3. Ask: "What's your height in cm?"
 4. Ask: "What's your timezone?" (IANA format, e.g. "America/Toronto", "Asia/Shanghai"). All dates, timestamps, and daily cutoffs use this timezone.
-4. Ask: “What's your activity level?” Explain the choices:
-   - `sedentary`: under 2 hours of exercise per week (desk job, no intentional
-     exercise);
-   - `light`: 2–4 hours per week (walking, light jogging, 1–2 gym sessions);
-   - `moderate`: 4–7 hours per week (3–5 gym sessions, active lifestyle);
-   - `intense`: 7+ hours per week (6–7 gym sessions, physical job, athlete).
-   Store both the selected `name` and its multiplier in the `activity_level`
-   object shown in `../references/profile.template.json`.
-5. Ask: “Do you want to connect Xunji API?” Be ready to explain that
+5. Ask: "Do you want to connect Xunji API?" Be ready to explain that
    [Xunji](https://www.xunjiapp.com) is a Chinese iOS/Android fitness-tracking
    app; API access requires Xunji VIP and automatically syncs body weight,
    body-fat percentage, and body measurements. Manual entry works as a fallback.
@@ -68,17 +60,28 @@ already provided instead of forcing a fixed questionnaire.
    - bulk: low surplus (`+200`), medium surplus (`+300`), or high surplus
      (`+500`);
    - maintain: `0`, with no tier choice needed.
-6. Run `calculate_tdee.py`:
+6. Ask for training days/week, cardio days/week, and cardio minutes/session.
+   If the user doesn't know, explicitly tell them: "If you're not sure, just say
+   so — I'll suggest a setup based on your goal." Then suggest defaults (e.g.,
+   3-4 days/week for cut, 4-5 for bulk) and work it out together. Never leave
+   these fields empty or guess the answer.
+7. Derive `activity_multiplier` from the training + cardio settings:
+   - total_exercise_hours = training_days × 1h + cardio_days × cardio_min/60
+   - Map to multiplier: < 2h → 1.2, 2-4h → 1.375, 4-7h → 1.55, 7+ → 1.725
+   - Present to user: "Based on 4 training days and 0 cardio per week, your
+     activity multiplier is ×1.55. OK?"
+   - Only proceed on user confirmation. This replaces the old activity_level
+     field entirely — the multiplier is derived, not asked.
+8. Run `calculate_tdee.py`:
    - derive age from birth date;
    - calculate Mifflin–St Jeor BMR using the sex-specific formula;
-   - multiply BMR by `activity_level.multiplier` (fall back to the named
-     activity mapping only for a legacy string profile);
+   - multiply BMR by `activity_multiplier`;
    - calculate macros using the chosen `calorie_delta_kcal`:
      - cut: target weight × 2.2 g protein/kg;
      - bulk: target weight × 2.0 g protein/kg;
      - maintain: target weight × 1.8 g protein/kg;
      - fat is 25% of calories divided by 9; carbs receive remaining calories.
-7. After calorie tier selection and macro calculation, always run timeline
+9. After calorie tier selection and macro calculation, always run timeline
    estimation with a Python script before writing the profile:
    - expected weekly change =
      `abs(calorie_delta_kcal) * 7 / 3500 * 0.45` kg;
@@ -97,23 +100,18 @@ already provided instead of forcing a fixed questionnaire.
    - for maintain (`calorie_delta_kcal = 0`), skip division by zero and confirm
      the requested maintain date, or leave `timeline` as `null` when no
      completion date applies.
-8. Present a summary table with goal, target/timeline, calorie tier and delta,
-   BMR, TDEE, calories,
-   protein, carbs, and fat.
-9. Ask for training days/week, cardio days/week, and cardio minutes/session. If the user doesn't know, explicitly tell them:
-   "If you're not sure, just say so — I'll suggest a setup based on your goal."
-   Then suggest defaults (e.g., 3-4 days/week for cut, 4-5 for bulk) and work it
-   out together. Never leave these fields empty or guess the answer.
-10. Write every applicable field from `../references/profile.template.json` to
-   `data/user/profile.json`, updating `updated_at`.
-11. Report: “✅ Profile updated — goal: cut to 75.0 kg by 2026-10-01. Daily:
-   2200 kcal, P180/C220/F49”.
+10. Present a summary table with goal, target/timeline, calorie tier and delta,
+    BMR, TDEE, calories, protein, carbs, and fat.
+11. Write every applicable field from `../references/profile.template.json` to
+    `data/user/profile.json`, updating `updated_at`.
+12. Report: “✅ Profile updated — goal: bulk to 90.0 kg by 2026-08-25. Daily:
+    3276 kcal, P180/C437/F91”.
 
 ## View Profile
 
 1. Read `data/user/profile.json`.
 2. Calculate current age with the script and present:
-   - Bio: “Female, 31 years old, 165 cm, moderate activity”
+   - Bio: “Male, 26 years old, 185 cm, ×1.55 multiplier”
    - Goal: “Cutting from 82.0 kg → 75.0 kg by 2026-10-01”
    - Macros: “2200 kcal/day — P:180g C:220g F:49g”
    - Training: “5 days/week, 2 cardio days × 30min”
@@ -125,7 +123,7 @@ already provided instead of forcing a fixed questionnaire.
 2. Obtain current weight from the latest weight body-log entry; if none exists,
    ask the user.
 3. Run the script to recalculate age, BMR, TDEE, and macros using the current
-   profile goal, target weight, `activity_level.multiplier`, and
+   profile goal, target weight, `activity_multiplier`, and
    `calorie_delta_kcal`.
 4. Show a before/after comparison.
 5. Ask: “Update profile with new values?”
@@ -138,5 +136,4 @@ already provided instead of forcing a fixed questionnaire.
 |-------|--------|
 | Profile not found | Trigger onboarding |
 | Cannot determine macro targets | Ask the user to verify goal and weight |
-| Invalid activity level | Show `sedentary`, `light`, `moderate`, `intense` |
 | Birth date in future | Reject it and ask for the correct date |

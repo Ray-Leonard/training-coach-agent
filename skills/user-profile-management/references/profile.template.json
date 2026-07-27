@@ -28,11 +28,8 @@
 
   "// === Metabolic Baseline ===": "",
   "tdee_kcal": 2116,                   // Total Daily Energy Expenditure
+  "activity_multiplier": 1.55,              // Derived from training days + cardio
   "bmr_kcal": 1365,                    // Basal Metabolic Rate
-  "activity_level": {
-    "name": "moderate",                // "sedentary" | "light" | "moderate" | "intense"
-    "multiplier": 1.55                 // Time per week mapped to a multiplier
-  },
 
   "// === Metadata ===": "",
   "updated_at": "2026-07-23T15:30:00Z" // ISO 8601 timestamp
