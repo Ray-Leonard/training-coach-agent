@@ -149,3 +149,40 @@ def list_entries(
 
 
 __all__ = ["log_entry", "delete_entry", "list_entries"]
+
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) < 2:
+        print("Usage: body_log.py <log|delete|list> [args...]", file=sys.stderr)
+        sys.exit(1)
+
+    cmd = sys.argv[1]
+
+    if cmd == "log":
+        if len(sys.argv) < 5:
+            print("Usage: body_log.py log <type> <value> <unit> [date]", file=sys.stderr)
+            sys.exit(1)
+        entry_type, value, unit = sys.argv[2], float(sys.argv[3]), sys.argv[4]
+        date_str = sys.argv[5] if len(sys.argv) > 5 else None
+        path = log_entry(entry_type, value, unit, date_str=date_str)
+        print(f"✅ Logged {entry_type} {value} {unit} to {path}")
+
+    elif cmd == "delete":
+        if len(sys.argv) < 4:
+            print("Usage: body_log.py delete <date> <type>", file=sys.stderr)
+            sys.exit(1)
+        d, t = sys.argv[2], sys.argv[3]
+        n = delete_entry(d, t)
+        print(f"✅ Deleted {n} manual {t} entries on {d}")
+
+    elif cmd == "list":
+        month = sys.argv[2] if len(sys.argv) > 2 else None
+        entry_type = sys.argv[3] if len(sys.argv) > 3 else None
+        records = list_entries(month=month, entry_type=entry_type)
+        print(json.dumps(records, ensure_ascii=False, indent=2))
+
+    else:
+        print(f"Unknown command: {cmd}", file=sys.stderr)
+        sys.exit(1)

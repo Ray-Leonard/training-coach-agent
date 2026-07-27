@@ -32,8 +32,9 @@ Triggered by input such as “我今天 85kg” or “my bodyfat is 18%”.
    positive value, matching unit, and ISO date.
 2. Show: “Logging: weight 85.0 kg on 2026-07-23. Confirm?”
 3. Do not write until the user confirms.
-4. On confirmation, call `log_entry(type, value, unit, date_str=date)` from
-   `../scripts/body_log.py`. This single call handles load, upsert, save.
+4. On confirmation, run `python3 ../scripts/body_log.py log <type> <value> <unit>`.
+   This single command handles load, upsert, save. Example:
+   `python3 ../scripts/body_log.py log weight 85.0 kg`
 5. Report: "✅ Logged weight 85.0 kg on 2026-07-27 to `data/user/body-log/2026-07.json`".
 
 ## Sync from Xunji API
