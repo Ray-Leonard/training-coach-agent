@@ -46,7 +46,7 @@ def _load_month(month: str) -> List[Dict[str, Any]]:
 def _save_month(records: List[Dict[str, Any]], month: str) -> Path:
     """Write one month of strict JSON body-log data atomically, sorted by date."""
     BODY_LOG_DIR.mkdir(parents=True, exist_ok=True)
-    records.sort(key=lambda r: (r.get("date", ""), r.get("type", "")))
+    records.sort(key=lambda r: (r.get("date", ""), r.get("type", "")), reverse=True)
     destination = BODY_LOG_DIR / f"{month}.json"
     temporary = destination.with_suffix(".json.tmp")
     temporary.write_text(
@@ -126,7 +126,7 @@ def list_entries(
         records = _load_month(month)
         if entry_type:
             records = [r for r in records if r.get("type") == entry_type]
-        records.sort(key=lambda r: (r.get("date") or r.get("datestr", ""), r.get("type", "")))
+        records.sort(key=lambda r: (r.get("date") or r.get("datestr", ""), r.get("type", "")), reverse=True)
         return records
 
     all_records: List[Dict[str, Any]] = []
@@ -141,7 +141,7 @@ def list_entries(
                 all_records.extend(month_records)
             except (json.JSONDecodeError, OSError):
                 pass
-    all_records.sort(key=lambda r: (r.get("date") or r.get("datestr", ""), r.get("type", "")))
+    all_records.sort(key=lambda r: (r.get("date") or r.get("datestr", ""), r.get("type", "")), reverse=True)
     return all_records
 
 
