@@ -252,12 +252,14 @@ def save_body_log(records: Iterable[Dict[str, Any]], month: str) -> Path:
         raise ValueError("month must use YYYY-MM format") from exc
     normalized_month = month_date.strftime("%Y-%m")
     selected = [
-        dict(record)
+        {**dict(record), "date": record.get("date") or record.get("datestr")}
         for record in records
         if str(record.get("date") or record.get("datestr", "")).startswith(
             f"{normalized_month}-"
         )
     ]
+    for r in selected:
+        r.pop("datestr", None)  # normalize to "date" only
     selected.sort(key=lambda item: (item.get("date", ""), item.get("type", "")))
     BODY_LOG_DIR.mkdir(parents=True, exist_ok=True)
     destination = BODY_LOG_DIR / f"{normalized_month}.json"

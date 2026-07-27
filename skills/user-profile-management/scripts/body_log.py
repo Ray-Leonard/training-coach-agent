@@ -44,8 +44,9 @@ def _load_month(month: str) -> List[Dict[str, Any]]:
 
 
 def _save_month(records: List[Dict[str, Any]], month: str) -> Path:
-    """Write one month of strict JSON body-log data atomically."""
+    """Write one month of strict JSON body-log data atomically, sorted by date."""
     BODY_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    records.sort(key=lambda r: (r.get("date", ""), r.get("type", "")))
     destination = BODY_LOG_DIR / f"{month}.json"
     temporary = destination.with_suffix(".json.tmp")
     temporary.write_text(
