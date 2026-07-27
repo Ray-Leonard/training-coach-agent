@@ -7,6 +7,19 @@ from datetime import date
 from typing import Any, Dict, Mapping, Union
 
 
+
+def _read_profile_timezone():
+    """Read timezone from profile.json. Returns None on failure."""
+    import json
+    from pathlib import Path
+    profile_path = Path(__file__).resolve().parents[3] / "data" / "user" / "profile.json"
+    try:
+        raw = json.loads(profile_path.read_text(encoding="utf-8"))
+        return raw.get("timezone")
+    except Exception:
+        return None
+
+
 ACTIVITY_MULTIPLIERS = {
     "sedentary": 1.2,
     "light": 1.375,
@@ -20,14 +33,21 @@ PROTEIN_MULTIPLIERS = {
     "maintain": 1.8,
 }
 
-def calculate_age(birth_date_str: str) -> int:
-    """Return age in complete years as of today."""
+def calculate_age(birth_date_str: str, tz_name: str = None) -> int:
+    """Return age in complete years as of today in the given timezone."""
     try:
         birth_date = date.fromisoformat(birth_date_str)
     except (TypeError, ValueError) as exc:
         raise ValueError("birth_date must use YYYY-MM-DD format") from exc
 
-    today = date.today()
+    if tz_name is None:
+        tz_name = _read_profile_timezone()
+    if tz_name:
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        today = datetime.now(ZoneInfo(tz_name)).date()
+    else:
+        today = date.today()
     if birth_date > today:
         raise ValueError("birth_date cannot be in the future")
     return today.year - birth_date.year - (

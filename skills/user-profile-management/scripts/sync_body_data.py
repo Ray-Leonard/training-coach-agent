@@ -11,6 +11,27 @@ import uuid
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
+
+def _today_in_tz(tz_name):
+    """Return today's date in the given IANA timezone."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    return datetime.now(ZoneInfo(tz_name)).date()
+
+
+def _read_profile_timezone():
+    """Read timezone from data/user/profile.json. Returns 'UTC' on failure."""
+    import json
+    profile_path = REPO_ROOT / "data" / "user" / "profile.json"
+    try:
+        raw = json.loads(profile_path.read_text(encoding="utf-8"))
+        tz = raw.get("timezone")
+        if tz and isinstance(tz, str):
+            return tz
+    except Exception:
+        pass
+    return "UTC"
+
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -277,7 +298,7 @@ def log_manual_entry(
 
     Returns the path written, so the agent only needs to print it.
     """
-    entry_date = date_str or date.today().isoformat()
+    entry_date = date_str or _today_in_tz(_read_profile_timezone()).isoformat()
     month = entry_date[:7]
     entry: Dict[str, Any] = {
         "date": entry_date,
