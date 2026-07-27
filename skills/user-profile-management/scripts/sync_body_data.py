@@ -188,10 +188,11 @@ def query_body_data(
         return response
     if not isinstance(response, dict):
         return []
-    data = response.get("data", response)
-    if isinstance(data, dict) and isinstance(data.get("records"), list):
-        return data["records"]
-    return response.get("records", []) if isinstance(response.get("records"), list) else []
+    # Core data is in "res" per Xunji API convention: {success: true, res: {records, latest, ...}}
+    res = response.get("res") or response.get("data") or response
+    if isinstance(res, dict) and isinstance(res.get("records"), list):
+        return res["records"]
+    return []
 
 
 def _normalize_api_record(record: Dict[str, Any]) -> Dict[str, Any]:
