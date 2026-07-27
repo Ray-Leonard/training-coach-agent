@@ -77,6 +77,7 @@ def log_entry(
         "value": value,
         "unit": unit,
         "source": "manual",
+        "xunji_id": None,
     }
 
     records = _load_month(month)
