@@ -270,6 +270,47 @@ def save_body_log(records: Iterable[Dict[str, Any]], month: str) -> Path:
     return destination
 
 
+def log_manual_entry(
+    entry_type: str, value: float, unit: str, *, date_str: Optional[str] = None
+) -> Path:
+    """Atomically log one manual body measurement to the monthly file.
+
+    Returns the path written, so the agent only needs to print it.
+    """
+    entry_date = date_str or date.today().isoformat()
+    month = entry_date[:7]
+    entry: Dict[str, Any] = {
+        "date": entry_date,
+        "type": entry_type,
+        "value": value,
+        "unit": unit,
+        "source": "manual",
+    }
+
+    month_path = BODY_LOG_DIR / f"{month}.json"
+    if month_path.is_file():
+        try:
+            records = json.loads(month_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            records = []
+    else:
+        records = []
+
+    # Replace existing manual entry with same (date, type) or append
+    replaced = False
+    for i, record in enumerate(records):
+        r_date = record.get("date") or record.get("datestr")
+        if r_date == entry_date and record.get("type") == entry_type and record.get("source") == "manual":
+            records[i] = entry
+            replaced = True
+            break
+    if not replaced:
+        records.append(entry)
+
+    target = save_body_log(records, month)
+    return target
+
+
 __all__ = [
     "XunjiAPIError",
     "get_api_key",
@@ -277,4 +318,5 @@ __all__ = [
     "merge_body_logs",
     "upsert_body_data",
     "save_body_log",
+    "log_manual_entry",
 ]

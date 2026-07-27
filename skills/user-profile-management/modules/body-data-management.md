@@ -31,16 +31,9 @@ Triggered by input such as “我今天 85kg” or “my bodyfat is 18%”.
    positive value, matching unit, and ISO date.
 2. Show: “Logging: weight 85.0 kg on 2026-07-23. Confirm?”
 3. Do not write until the user confirms.
-4. On confirmation, load or create `data/user/body-log/YYYY-MM.json`, replace an
-   existing manual entry with the same `(date, type)` or append:
-
-   ```json
-   {"date":"2026-07-23","type":"weight","value":85.0,"unit":"kg","source":"manual"}
-   ```
-
-5. Sort entries consistently and save strict JSON.
-6. Report: “✅ Logged weight 85.0 kg on 2026-07-23. Logged to
-   `data/user/body-log/2026-07.json`”.
+4. On confirmation, call `log_manual_entry(type, value, unit, date_str=date)` from
+   `../scripts/sync_body_data.py`. This single call handles load, upsert, save.
+5. Report: "✅ Logged weight 85.0 kg on 2026-07-27 to `data/user/body-log/2026-07.json`".
 
 ## Sync from Xunji API
 

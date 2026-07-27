@@ -74,6 +74,10 @@ All sub-modules share these:
 - **`data/nutrition/individual-food-data/`**: Single source of truth. Foods are classified below `whole-foods/` (`fruits/`, `meats/`, `dairy/`, `grains/`) or `processed-foods/` (`breads/`, `snacks/`, `instant/`, `frozen-prepared/`, `canned/`, `condiments/`, `dairy-processed/`, `meats-processed/`, `beverages/`). **To find a food**: search both trees with `find data/nutrition/individual-food-data/whole-foods/ data/nutrition/individual-food-data/processed-foods/ -type f -name '*.md'`, then `read_file` only the specific food(s) needed.
 - **`data/nutrition/menu/`**: Each meal template has its own `.md` file.
 - **⚠️ Deprecated**: The legacy consolidated-database workflow and separate food-name index must not be used or referenced. They were Perplexity WebUI workarounds.
+- **Data sandbox**: Only this skill writes to `data/nutrition/`. No other module
+  creates, modifies, or deletes files in `data/nutrition/individual-food-data/`,
+  `data/nutrition/menu/`, or `data/nutrition/source-images/`. Other modules may
+  only *read* these files.
 
 > ⚠️ **Path Resolution**: All paths are relative to the `training-coach-agent` repo root. Nutrition data lives under `data/nutrition/`, while this skill and its sub-modules live under `skills/nutrition-database-management/`. Work from the repo root; if that root cannot be identified, **do not guess** — ask the user to confirm it.
 
