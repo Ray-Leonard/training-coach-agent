@@ -9,7 +9,7 @@
   "target_weight_kg": 58.0,            // Goal weight
   "initial_weight_kg": 65.0,           // Weight when this goal was set
   "target_set_date": "2026-07-23",     // Date when this goal was set
-  "timeline": "2026-10-01",            // Target completion date
+  "timeline": null,                    // ISO target completion date, or null when not set
   "calorie_delta_kcal": -500,          // User's chosen calorie surplus/deficit
 
   "// === Daily Macros (calculated from TDEE + goal) ===": "",

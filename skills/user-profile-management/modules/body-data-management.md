@@ -53,10 +53,11 @@ Triggered by “sync body data”, “拉训记数据”, or “sync from Xunji�
 3. Read every local `data/user/body-log/YYYY-MM.json` file.
 4. Merge all API and local records on `(date, type)`, with Xunji winning every
    conflict.
-5. Compare the merged result with local records and count new or changed
-   records.
-6. Show a summary such as: “Found 5 new records: 3 weight, 2 bodyfat since July
-   18. Sync?”
+5. Use `../scripts/compare_body_logs.py` to compare the merged result with local
+   records and count new, changed, unchanged, and removed records. Do not count
+   differences in the model.
+6. Use the script's `format_summary` output in the confirmation summary, for
+   example: “Found 3 new records, 2 changed, 150 unchanged. Sync?”
 7. Do not write until the user confirms.
 8. On confirmation, write all merged records back to their local monthly files,
    including unchanged months, using `save_body_log` for every month represented
