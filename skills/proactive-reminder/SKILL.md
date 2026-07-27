@@ -19,3 +19,4 @@ When developing this module, you must follow these rules:
 2. **Timezone**: Read `timezone` from `data/user/profile.json`. All reminder timing (morning check-in, pre-workout nudge) uses this timezone.
 3. **No guessing**: Reminders ask questions, they don't make statements. "Did you eat today?" not "You haven't eaten today."
 4. **Non-intrusive**: Respect user's quiet hours. Don't spam.
+5. **Data presentation**: When showing data to the user, read files with `read_file` and present formatted inline. Never use Python scripts or raw dumps for user-facing output. Scripts are for calculations and writes only.

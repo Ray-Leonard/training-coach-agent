@@ -19,3 +19,4 @@ When developing this module, you must follow these rules:
 2. **Timezone**: Read `timezone` from `data/user/profile.json`. All month boundaries use this timezone.
 3. **Python scripts**: All aggregation (weekly averages, totals, deltas) uses Python scripts.
 4. **Privacy**: Summaries must not expose raw data beyond what the user explicitly requests. Aggregate first, then present.
+5. **Data presentation**: When showing data to the user, read files with `read_file` and present formatted inline. Never use Python scripts or raw dumps for user-facing output. Scripts are for calculations and writes only.

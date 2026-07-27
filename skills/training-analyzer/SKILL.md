@@ -19,3 +19,4 @@ When developing this module, you must follow these rules:
 2. **Timezone**: Read `timezone` from `data/user/profile.json`. All workout timestamps use this timezone.
 3. **Python scripts**: All progression calculations (volume, 1RM estimates, PR detection) use Python scripts, not LLM arithmetic.
 4. **No guessing**: Never assume a workout happened. Always confirm with user.
+5. **Data presentation**: When showing data to the user, read files with `read_file` and present formatted inline. Never use Python scripts or raw dumps for user-facing output. Scripts are for calculations and writes only.

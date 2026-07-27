@@ -78,6 +78,9 @@ All sub-modules share these:
   creates, modifies, or deletes files in `data/nutrition/individual-food-data/`,
   `data/nutrition/menu/`, or `data/nutrition/source-images/`. Other modules may
   only *read* these files.
+- **Data presentation**: When showing data to the user, read files with `read_file`
+  and present formatted inline. Do NOT use Python scripts or raw JSON/Markdown
+  dumps for user-facing output. Scripts are for calculations and writes only.
 
 > ⚠️ **Path Resolution**: All paths are relative to the `training-coach-agent` repo root. Nutrition data lives under `data/nutrition/`, while this skill and its sub-modules live under `skills/nutrition-database-management/`. Work from the repo root; if that root cannot be identified, **do not guess** — ask the user to confirm it.
 
