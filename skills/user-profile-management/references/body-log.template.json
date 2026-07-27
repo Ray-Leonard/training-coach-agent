@@ -10,7 +10,7 @@
     "unit": "kg",
     "// One of: xunji_api | manual": "",
     "source": "xunji_api",
-    "// Optional; include only for source=xunji_api": "",
+    "// Always present; null for manual entries": "",
     "xunji_id": 12585006
   }
 ]
