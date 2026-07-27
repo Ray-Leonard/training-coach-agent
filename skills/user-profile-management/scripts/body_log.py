@@ -125,7 +125,7 @@ def list_entries(
         records = _load_month(month)
         if entry_type:
             records = [r for r in records if r.get("type") == entry_type]
-        records.sort(key=lambda r: (r.get("date", ""), r.get("type", "")))
+        records.sort(key=lambda r: (r.get("date") or r.get("datestr", ""), r.get("type", "")))
         return records
 
     all_records: List[Dict[str, Any]] = []
@@ -140,7 +140,7 @@ def list_entries(
                 all_records.extend(month_records)
             except (json.JSONDecodeError, OSError):
                 pass
-    all_records.sort(key=lambda r: (r.get("date", ""), r.get("type", "")))
+    all_records.sort(key=lambda r: (r.get("date") or r.get("datestr", ""), r.get("type", "")))
     return all_records
 
 
