@@ -21,7 +21,6 @@
   },
 
   "// === Training Settings ===": "",
-  "training_split": "Push Pull Legs — 三分化训练。Day1 推(胸肩三头) Day2 拉(背二头) Day3 腿，每次约60-75分钟",
   "training_days_per_week": 5,
   "cardio_days_per_week": 2,
   "cardio_minutes_per_session": 30,

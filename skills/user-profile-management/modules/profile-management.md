@@ -99,8 +99,7 @@ already provided instead of forcing a fixed questionnaire.
 8. Present a summary table with goal, target/timeline, calorie tier and delta,
    BMR, TDEE, calories,
    protein, carbs, and fat.
-9. Ask for training split description, training days/week, cardio days/week, and
-   cardio minutes/session. If the user doesn't know, explicitly tell them:
+9. Ask for training days/week, cardio days/week, and cardio minutes/session. If the user doesn't know, explicitly tell them:
    "If you're not sure, just say so — I'll suggest a setup based on your goal."
    Then suggest defaults (e.g., 3-4 days/week for cut, 4-5 for bulk) and work it
    out together. Never leave these fields empty or guess the answer.
@@ -116,7 +115,7 @@ already provided instead of forcing a fixed questionnaire.
    - Bio: “Female, 31 years old, 165 cm, moderate activity”
    - Goal: “Cutting from 82.0 kg → 75.0 kg by 2026-10-01”
    - Macros: “2200 kcal/day — P:180g C:220g F:49g”
-   - Training: “PPL 三分化, 5 days/week, 2 cardio days × 30min”
+   - Training: “5 days/week, 2 cardio days × 30min”
    - Metabolic: “TDEE 2600 kcal, BMR 1780 kcal”
 
 ## Recalculate
