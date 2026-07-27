@@ -12,21 +12,23 @@ When the user says something, load the corresponding skill:
 |------------------------|-----------------|
 | "record my diet", "I ate...", "log this meal" | `skills/diet-tracker/SKILL.md` |
 | "analyze my workout", "training record", "check my progress" | `skills/training-analyzer/SKILL.md` |
-| "update my weight", "set my goals", "what's my TDEE" | `skills/user-profile-management/SKILL.md` |
-| "add a food", "nutrition label", "new food entry" | `skills/nutrition-database-management/SKILL.md` |
+| "update my weight", "sync body data", "set my goals", "what's my TDEE", "onboarding", "show profile" | `skills/user-profile-management/SKILL.md` |
+| "add a food", "nutrition label", "new food entry", "process this image" | `skills/nutrition-database-management/SKILL.md` |
 | "create a training plan", "new program", "adjust my split" | `skills/training-planning/SKILL.md` |
 | "monthly report", "summary" | `skills/monthly-summary/SKILL.md` |
+| "remind me", "check in", "did I eat today" | `skills/proactive-reminder/SKILL.md` |
 
 ## Data Formats
 
 All user data in `data/` is standardized JSON. The baseline format follows **训记 (Xunji) API response schemas** — even when data comes from manual input (text, photos), it gets normalized to the same shape.
 
 Key data files:
-- `data/user/profile.json` — Training goals, macro targets, split
-- `data/user/body-log/YYYY-MM.json` — Monthly body measurements matching the Xunji schema
+- `data/user/profile.json` — Training goals, macro targets, split, TDEE
+- `data/user/body-log/YYYY-MM.json` — Monthly body measurements (weight, bodyfat, circumferences). Matches Xunji API schema.
+- `data/nutrition/individual-food-data/` — Per-food nutrition files, classified under `whole-foods/` and `processed-foods/`
+- `data/nutrition/menu/` — Meal templates, one `.md` per meal
 - `data/training/YYYY-MM-DD.json` — Workout records
 - `data/diet/YYYY-MM-DD.json` — Daily meals (array of meal objects)
-- `data/nutrition/individual_food_data/` — Per-food nutrition files
 
 ## Calculation Rules
 

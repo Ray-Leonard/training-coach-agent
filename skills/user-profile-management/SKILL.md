@@ -21,8 +21,10 @@ user-profile-management/
 │   ├── body-data-management.md       ← Body data: query, log, sync
 │   └── profile-management.md         ← Profile: setup, view, recalculate
 ├── scripts/
-│   ├── calculate_tdee.py             ← BMR + TDEE calculator
-│   └── sync_body_data.py             ← Xunji API client
+│   ├── calculate_tdee.py             ← BMR + TDEE + macros (pure computation)
+│   ├── body_log.py                   ← Manual body-log CRUD (log, delete, list)
+│   ├── sync_body_data.py             ← Xunji API client (query, upsert, merge)
+│   └── compare_body_logs.py          ← Diff calculator for sync
 └── references/
     ├── synfit-body-api.md             ← Xunji Body API documentation
     ├── profile.template.json          ← profile.json schema template
@@ -50,16 +52,18 @@ Before **every** profile operation:
 
 If the profile is missing or empty, stop the requested workflow and begin onboarding:
 
-1. “Let's set up your profile. First: are you male or female?”
-2. “What's your birth date? (YYYY-MM-DD)”
-3. “What's your height in cm?”
-4. “What's your activity level? (sedentary / light / moderate / intense)”
-5. “Do you want to connect Xunji (训记) API for automatic body data sync? If so, I'll help you set that up.”
+Route to the onboarding workflow in `modules/profile-management.md`. A missing
+body log alone does not block profile operations; it means body-dependent
+calculations may require the user's current weight. If a non-empty profile
+exists, proceed directly to the routed operation.
 
-After collecting bio information, continue with Goal Setup in
-`modules/profile-management.md`. A missing body log alone does not block profile
-operations; it means body-dependent calculations may require the user's current
-weight. If a non-empty profile exists, proceed directly to the routed operation.
+## Xunji (训记)
+
+[Xunji](https://www.xunjiapp.com) is a Chinese fitness-tracking app available on
+iOS and Android. Its API integration is a VIP feature and requires a Xunji
+membership. When connected, it can automatically sync body weight, body-fat
+percentage, and body measurements. Users without VIP or who prefer not to
+connect can use manual entry with no loss of core profile-management features.
 
 ## Shared Conventions
 
@@ -69,8 +73,18 @@ weight. If a non-empty profile exists, proceed directly to the routed operation.
 - All dates: ISO `YYYY-MM-DD`
 - All timestamps: ISO 8601 `YYYY-MM-DDTHH:MM:SSZ`
 - Xunji API key: `.env` variable `SYNFIT_BODY_DATA_API_KEY`
+- **Timezone**: All date calculations and daily cutoffs use the user's IANA timezone
+  from `profile.timezone`. Scripts that call `date.today()` must use the profile's
+  timezone, not the system clock.
+- **Data presentation**: When showing data to the user, read the file with `read_file`
+  and present it formatted inline. Do NOT use Python scripts or raw JSON dumps
+  for user-facing output. Python scripts are for calculations and writes, not
+  for displaying data.
 - Use the scripts in `scripts/` for calculations and API/data merging; do not do
   arithmetic in the model.
 - Treat `references/profile.template.json` and
   `references/body-log.template.json` as JSON-with-comments reference files.
   Persisted monthly body logs are strict JSON.
+- **Data sandbox**: Only this skill writes to `data/user/`. No other module
+  reads or writes `data/user/profile.json` or `data/user/body-log/`. Other
+  modules may only *read* these files.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Xunji body-data API client and local monthly-log helpers."""
+"""Xunji (Synfit) body-data API client — query and upsert operations."""
 
 from __future__ import annotations
 
@@ -188,10 +188,10 @@ def query_body_data(
         return response
     if not isinstance(response, dict):
         return []
-    data = response.get("data", response)
-    if isinstance(data, dict) and isinstance(data.get("records"), list):
-        return data["records"]
-    return response.get("records", []) if isinstance(response.get("records"), list) else []
+    res = response.get("res") or response.get("data") or response
+    if isinstance(res, dict) and isinstance(res.get("records"), list):
+        return res["records"]
+    return []
 
 
 def _normalize_api_record(record: Dict[str, Any]) -> Dict[str, Any]:
@@ -252,13 +252,33 @@ def save_body_log(records: Iterable[Dict[str, Any]], month: str) -> Path:
         raise ValueError("month must use YYYY-MM format") from exc
     normalized_month = month_date.strftime("%Y-%m")
     selected = [
-        dict(record)
+        {**dict(record), "date": record.get("date") or record.get("datestr")}
         for record in records
         if str(record.get("date") or record.get("datestr", "")).startswith(
             f"{normalized_month}-"
         )
     ]
-    selected.sort(key=lambda item: (item.get("date", ""), item.get("type", "")))
+    _FIELD_ORDER = ["date", "type", "value", "unit", "source", "xunji_id"]
+    _KEEP_FIELDS = set(_FIELD_ORDER)
+    for r in selected:
+        r.pop("datestr", None)
+        r.pop("weight", None)
+        r.pop("label", None)
+        r.pop("label_en", None)
+        if not r.get("source"):
+            r["source"] = "xunji_api" if r.get("id") is not None else "xunji_api"
+        if r.get("id") is not None and not r.get("xunji_id"):
+            r["xunji_id"] = r["id"]
+        r.pop("id", None)
+        for k in list(r):
+            if k not in _KEEP_FIELDS:
+                del r[k]
+    # Reorder fields for consistent output
+    selected = [
+        {k: r[k] for k in _FIELD_ORDER if k in r}
+        for r in selected
+    ]
+    selected.sort(key=lambda item: (item.get("date", ""), item.get("type", "")), reverse=True)
     BODY_LOG_DIR.mkdir(parents=True, exist_ok=True)
     destination = BODY_LOG_DIR / f"{normalized_month}.json"
     temporary = destination.with_suffix(".json.tmp")
@@ -277,3 +297,42 @@ __all__ = [
     "upsert_body_data",
     "save_body_log",
 ]
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Xunji (Synfit) Body API CLI")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    q = sub.add_parser("query", help="Query body data from Xunji")
+    q.add_argument("--start", required=True, help="Start date (YYYY-MM-DD)")
+    q.add_argument("--end", required=True, help="End date (YYYY-MM-DD)")
+    q.add_argument("--types", nargs="*", help="Filter by type (e.g. weight bodyfat)")
+
+    s = sub.add_parser("sync", help="Full sync: query all + save locally")
+    s.add_argument("--start", default="2020-01-01", help="Start date (default: 2020-01-01)")
+    s.add_argument("--end", default="2099-12-31", help="End date (default: far future)")
+
+    args = parser.parse_args()
+
+    if args.cmd == "query":
+        records = query_body_data(args.start, args.end, types=args.types)
+        print(f"Found {len(records)} records")
+        if records:
+            print(json.dumps(records[:10], ensure_ascii=False, indent=2))
+            if len(records) > 10:
+                print(f"... and {len(records) - 10} more")
+
+    elif args.cmd == "sync":
+        records = query_body_data(args.start, args.end)
+        merged = merge_body_logs(records, [])
+        by_month: dict[str, list] = {}
+        for r in merged:
+            d = r.get("date", "")
+            if len(d) >= 7:
+                by_month.setdefault(d[:7], []).append(r)
+        for month in sorted(by_month):
+            path = save_body_log(by_month[month], month)
+            print(f"{month}: {len(by_month[month])} records → {path}")
+        print(f"Synced {len(merged)} records into {len(by_month)} monthly files")

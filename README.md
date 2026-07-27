@@ -13,7 +13,7 @@ An open-source AI fitness coach system. Give your AI agent this repo and it beco
 | # | Module | Status | What it does |
 |---|--------|--------|-------------|
 | 1 | **Nutrition Database Management** | ✅ Done | Maintain your personal food database. Add foods from nutrition labels (OCR) or web search. Organize by whole foods vs. processed foods. Manage meal templates. |
-| 2 | **User Profile Management** | 📋 Planned | Track body weight, body fat, measurements. Set training goals and macro targets. Calculate TDEE. |
+| 2 | **User Profile Management** | ✅ Done | Body measurements, weight/BF tracking, Xunji API sync. Goal setup (weight or BF%). Auto-calculate TDEE, macros, and timeline. Activity multiplier derived from training schedule. |
 | 3 | **Diet Tracker** | 📋 Planned | Log daily meals, calculate macros and micronutrients, compare against your goals. Supports manual entry and 训记 (Xunji) app sync. |
 | 4 | **Training Analyzer** | 📋 Planned | Record workouts and track progress across exercises. Detect PRs, analyze volume trends, generate per-session reports. 训记 sync supported. |
 | 5 | **Training Planning** | 📋 Planned | Design and adjust training programs (5×5, PPL, Ivysaur, etc.) based on your history and goals. Includes deload week planning. |

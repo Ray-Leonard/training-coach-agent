@@ -1,20 +1,27 @@
 # Body Data Management
 
-Use `../scripts/sync_body_data.py` for API access, merging, and persistence. Valid
+Use `../scripts/sync_body_data.py` for Xunji API operations (query, upsert, merge).
+Use `../scripts/body_log.py` for manual body-log CRUD (log, delete, list). Valid
 types are documented in `../references/synfit-body-api.md`.
+
+## Table of Contents
+
+- [Query Body Data](#query-body-data)
+- [Log Body Data (manual)](#log-body-data-manual)
+- [Sync from Xunji API](#sync-from-xunji-api)
 
 ## Query Body Data
 
 Triggered by requests such as “what's my weight trend” or “show body log”.
 
-1. Check `.env` for `SYNFIT_BODY_DATA_API_KEY`.
-2. If present, query recent Xunji data as the primary source.
-3. Read all applicable `data/user/body-log/YYYY-MM.json` files as the secondary
-   source.
-4. Merge on `(date, type)` with Xunji API entries winning conflicts.
-5. Use a Python script to calculate change and trend; show the date range, first
+1. Ask: “Would you like to see this week, this month, last 3 months, or all
+   data?”
+2. Read the applicable `data/user/body-log/YYYY-MM.json` files only. Local
+   `data/user/body-log/` is the source of truth; never query Xunji during a body
+   data query.
+3. Use a Python script to calculate change and trend; show the date range, first
    and latest values, absolute change, and record count.
-6. If neither source has data, say: “No body data found. Would you like to sync
+4. If local data has no applicable records, say: “No body data found. Would you like to sync
    from Xunji or log manually?”
 
 ## Log Body Data (manual)
@@ -25,32 +32,40 @@ Triggered by input such as “我今天 85kg” or “my bodyfat is 18%”.
    positive value, matching unit, and ISO date.
 2. Show: “Logging: weight 85.0 kg on 2026-07-23. Confirm?”
 3. Do not write until the user confirms.
-4. On confirmation, load or create `data/user/body-log/YYYY-MM.json`, replace an
-   existing manual entry with the same `(date, type)` or append:
-
-   ```json
-   {"date":"2026-07-23","type":"weight","value":85.0,"unit":"kg","source":"manual"}
-   ```
-
-5. Sort entries consistently and save strict JSON.
-6. Report: “✅ Logged weight 85.0 kg on 2026-07-23”.
+4. On confirmation, run `python3 ../scripts/body_log.py log <type> <value> <unit>`.
+   This single command handles load, upsert, save. Example:
+   `python3 ../scripts/body_log.py log weight 85.0 kg`
+5. Report: "✅ Logged weight 85.0 kg on 2026-07-27 to `data/user/body-log/2026-07.json`".
 
 ## Sync from Xunji API
 
 Triggered by “sync body data”, “拉训记数据”, or “sync from Xunji”.
 
 1. Read the API key from `.env`. If missing, offer manual entry.
-2. Determine the range: use the earliest local entry through today; if there is
-   no local data, use the last 30 days.
-3. Call `POST /open/body/query_gzip`.
-4. Compare API records with local entries by `(date, type)` and count new or
-   changed records.
-5. Show a summary such as: “Found 5 new records: 3 weight, 2 bodyfat since July
-   18. Sync?”
-6. Do not write until the user confirms.
-7. On confirmation, merge at entry level with API winning, then use
-   `save_body_log` for each affected month.
-8. Report: “✅ Synced 5 records from Xunji”.
+2. Always fetch all Xunji data: call `POST /open/body/query_gzip` with a wide
+   range from a date far in the past (for example `1900-01-01`) through today.
+   Do not infer the cloud range from local records.
+3. Read every local `data/user/body-log/YYYY-MM.json` file.
+4. Merge all API and local records on `(date, type)`, with Xunji winning every
+   conflict.
+5. Use `../scripts/compare_body_logs.py` to compare the merged result with local
+   records and count new, changed, unchanged, and removed records. Do not count
+   differences in the model.
+6. Use the script's `format_summary` output in the confirmation summary, for
+   example: “Found 3 new records, 2 changed, 150 unchanged. Sync?”
+7. Do not write until the user confirms.
+8. On confirmation, write all merged records back to their local monthly files,
+   including unchanged months, using `save_body_log` for every month represented
+   in the merged data. `save_body_log` is a function in
+   `../scripts/sync_body_data.py` that atomically writes one month of records to
+   `data/user/body-log/YYYY-MM.json`.
+9. Report: “✅ Synced 5 records from Xunji. Local
+   `data/user/body-log/` is now the only source of truth. Future queries read
+   from local files only.”
+
+This full-fetch → read-local → conflict-aware merge → rewrite-all-months pattern
+is the reusable sync design for future modules. It ensures local storage never
+misses a cloud entry.
 
 This sync workflow only queries and stores Xunji records. Any call to the Xunji
 upsert endpoint must separately follow the mandatory dry-run → summary → explicit
