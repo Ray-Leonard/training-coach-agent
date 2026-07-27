@@ -100,7 +100,10 @@ already provided instead of forcing a fixed questionnaire.
    BMR, TDEE, calories,
    protein, carbs, and fat.
 9. Ask for training split description, training days/week, cardio days/week, and
-   cardio minutes/session.
+   cardio minutes/session. If the user doesn't know, explicitly tell them:
+   "If you're not sure, just say so — I'll suggest a setup based on your goal."
+   Then suggest defaults (e.g., 3-4 days/week for cut, 4-5 for bulk) and work it
+   out together. Never leave these fields empty or guess the answer.
 10. Write every applicable field from `../references/profile.template.json` to
    `data/user/profile.json`, updating `updated_at`.
 11. Report: “✅ Profile updated — goal: cut to 75.0 kg by 2026-10-01. Daily:

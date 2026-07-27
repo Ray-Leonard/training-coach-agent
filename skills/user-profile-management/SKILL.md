@@ -76,3 +76,6 @@ connect can use manual entry with no loss of core profile-management features.
 - Treat `references/profile.template.json` and
   `references/body-log.template.json` as JSON-with-comments reference files.
   Persisted monthly body logs are strict JSON.
+- **Data sandbox**: Only this skill writes to `data/user/`. No other module
+  reads or writes `data/user/profile.json` or `data/user/body-log/`. Other
+  modules may only *read* these files.
