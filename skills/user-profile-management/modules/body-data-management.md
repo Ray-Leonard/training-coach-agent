@@ -1,6 +1,7 @@
 # Body Data Management
 
-Use `../scripts/sync_body_data.py` for API access, merging, and persistence. Valid
+Use `../scripts/sync_body_data.py` for Xunji API operations (query, upsert, merge).
+Use `../scripts/body_log.py` for manual body-log CRUD (log, delete, list). Valid
 types are documented in `../references/synfit-body-api.md`.
 
 ## Table of Contents
@@ -31,8 +32,8 @@ Triggered by input such as “我今天 85kg” or “my bodyfat is 18%”.
    positive value, matching unit, and ISO date.
 2. Show: “Logging: weight 85.0 kg on 2026-07-23. Confirm?”
 3. Do not write until the user confirms.
-4. On confirmation, call `log_manual_entry(type, value, unit, date_str=date)` from
-   `../scripts/sync_body_data.py`. This single call handles load, upsert, save.
+4. On confirmation, call `log_entry(type, value, unit, date_str=date)` from
+   `../scripts/body_log.py`. This single call handles load, upsert, save.
 5. Report: "✅ Logged weight 85.0 kg on 2026-07-27 to `data/user/body-log/2026-07.json`".
 
 ## Sync from Xunji API

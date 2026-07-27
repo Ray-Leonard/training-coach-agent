@@ -21,8 +21,10 @@ user-profile-management/
 │   ├── body-data-management.md       ← Body data: query, log, sync
 │   └── profile-management.md         ← Profile: setup, view, recalculate
 ├── scripts/
-│   ├── calculate_tdee.py             ← BMR + TDEE calculator
-│   └── sync_body_data.py             ← Xunji API client
+│   ├── calculate_tdee.py             ← BMR + TDEE + macros (pure computation)
+│   ├── body_log.py                   ← Manual body-log CRUD (log, delete, list)
+│   ├── sync_body_data.py             ← Xunji API client (query, upsert, merge)
+│   └── compare_body_logs.py          ← Diff calculator for sync
 └── references/
     ├── synfit-body-api.md             ← Xunji Body API documentation
     ├── profile.template.json          ← profile.json schema template

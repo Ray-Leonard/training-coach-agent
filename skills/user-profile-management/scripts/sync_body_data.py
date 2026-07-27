@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Xunji body-data API client and local monthly-log helpers."""
+"""Xunji (Synfit) body-data API client — query and upsert operations."""
 
 from __future__ import annotations
 
@@ -11,27 +11,6 @@ import uuid
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
-
-def _today_in_tz(tz_name):
-    """Return today's date in the given IANA timezone."""
-    from datetime import datetime
-    from zoneinfo import ZoneInfo
-    return datetime.now(ZoneInfo(tz_name)).date()
-
-
-def _read_profile_timezone():
-    """Read timezone from data/user/profile.json. Returns 'UTC' on failure."""
-    import json
-    profile_path = REPO_ROOT / "data" / "user" / "profile.json"
-    try:
-        raw = json.loads(profile_path.read_text(encoding="utf-8"))
-        tz = raw.get("timezone")
-        if tz and isinstance(tz, str):
-            return tz
-    except Exception:
-        pass
-    return "UTC"
-
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -209,7 +188,6 @@ def query_body_data(
         return response
     if not isinstance(response, dict):
         return []
-    # Core data is in "res" per Xunji API convention: {success: true, res: {records, latest, ...}}
     res = response.get("res") or response.get("data") or response
     if isinstance(res, dict) and isinstance(res.get("records"), list):
         return res["records"]
@@ -291,47 +269,6 @@ def save_body_log(records: Iterable[Dict[str, Any]], month: str) -> Path:
     return destination
 
 
-def log_manual_entry(
-    entry_type: str, value: float, unit: str, *, date_str: Optional[str] = None
-) -> Path:
-    """Atomically log one manual body measurement to the monthly file.
-
-    Returns the path written, so the agent only needs to print it.
-    """
-    entry_date = date_str or _today_in_tz(_read_profile_timezone()).isoformat()
-    month = entry_date[:7]
-    entry: Dict[str, Any] = {
-        "date": entry_date,
-        "type": entry_type,
-        "value": value,
-        "unit": unit,
-        "source": "manual",
-    }
-
-    month_path = BODY_LOG_DIR / f"{month}.json"
-    if month_path.is_file():
-        try:
-            records = json.loads(month_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            records = []
-    else:
-        records = []
-
-    # Replace existing manual entry with same (date, type) or append
-    replaced = False
-    for i, record in enumerate(records):
-        r_date = record.get("date") or record.get("datestr")
-        if r_date == entry_date and record.get("type") == entry_type and record.get("source") == "manual":
-            records[i] = entry
-            replaced = True
-            break
-    if not replaced:
-        records.append(entry)
-
-    target = save_body_log(records, month)
-    return target
-
-
 __all__ = [
     "XunjiAPIError",
     "get_api_key",
@@ -339,5 +276,4 @@ __all__ = [
     "merge_body_logs",
     "upsert_body_data",
     "save_body_log",
-    "log_manual_entry",
 ]
