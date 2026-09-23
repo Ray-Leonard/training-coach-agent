@@ -70,6 +70,89 @@ class RepositoryContractTestCase(unittest.TestCase):
         ).stdout.splitlines()
         self.assertTrue(tracked)
         self.assertTrue(all(Path(path).name == ".gitkeep" for path in tracked))
+    def test_phase_boundaries_and_runtime_entrypoints_are_explicit(self) -> None:
+        setup = (ROOT / "SETUP.md").read_text(encoding="utf-8")
+        agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        readme_zh = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+        profile_skill = (
+            ROOT / "skills" / "user-profile-management" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        profile_module = (
+            ROOT
+            / "skills"
+            / "user-profile-management"
+            / "modules"
+            / "profile-management.md"
+        ).read_text(encoding="utf-8")
+        config = (
+            ROOT / "coach-agent-profile" / "config.reference.yaml"
+        ).read_text(encoding="utf-8")
+
+        for text in (setup, agents, readme, readme_zh, profile_skill, profile_module):
+            with self.subTest(text_source="phase documentation"):
+                self.assertNotIn("Chinese-speaking", text)
+                self.assertNotIn("language-configurable", text)
+
+        for phrase in (
+            "Phase 0 — Agent Profile Installation",
+            "Phase 0.5 — Profile Handoff & Gateway Setup",
+            "Phase 1 — User Onboarding & Fitness Profile Creation",
+            "existing host Agent",
+            "does **not** read `SETUP.md`",
+            "data/user/profile.json",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, setup)
+
+        for phrase in (
+            "Phase 0 — Agent Profile Installation",
+            "Phase 0.5 — Profile Handoff & Gateway Setup",
+            "Phase 1 — User Onboarding & Fitness Profile Creation",
+            "must **not read `SETUP.md`**",
+            "active profile's `SOUL.md` must already exist",
+            "Do not ask the language-selection question again",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, agents)
+
+        for text in (readme, readme_zh):
+            with self.subTest(text_source="README"):
+                self.assertIn("Phase 0", text)
+                self.assertIn("Phase 0.5", text)
+                self.assertIn("Phase 1", text)
+                self.assertIn("SETUP.md", text)
+                self.assertIn("AGENTS.md", text)
+
+        self.assertTrue(profile_module.startswith("# Phase 1 — User Onboarding & Fitness Profile Creation"))
+        self.assertIn("does not install or configure an Agent Profile", profile_module)
+        self.assertIn("read `SETUP.md`", profile_module)
+        self.assertIn("do not ask the language-selection question again", profile_module)
+        self.assertNotIn("SOUL.example.md", profile_module)
+        self.assertNotIn("coach-agent-profile/", profile_module)
+        self.assertIn("Phase 0 — Agent Profile Installation", profile_skill)
+        self.assertIn("does not", profile_skill)
+        self.assertIn("reads `SETUP.md`", profile_skill)
+        self.assertIn("selects the runtime communication language", profile_skill)
+        self.assertIn("AGENTS.md and the active profile's SOUL.md", config)
+
+    def test_soul_examples_are_phase_zero_only_and_read_only(self) -> None:
+        english = (
+            ROOT / "coach-agent-profile" / "SOUL.example.md"
+        ).read_text(encoding="utf-8")
+        chinese = (
+            ROOT / "coach-agent-profile" / "SOUL.zh-CN.example.md"
+        ).read_text(encoding="utf-8")
+
+        for text in (english, chinese):
+            with self.subTest(text_source="Soul example"):
+                self.assertTrue(
+                    "read-only" in text.casefold() or "只读" in text
+                )
+                self.assertIn("Phase 0", text)
+                self.assertIn("SOUL.md", text)
+                self.assertIn("Phase 1", text)
+                self.assertIn("not" if text is english else "不会", text)
 
 
 if __name__ == "__main__":

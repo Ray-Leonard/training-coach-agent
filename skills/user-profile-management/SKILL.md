@@ -43,27 +43,47 @@ user-profile-management/
 | "what's my plan", "weekly training settings", "show profile" | `modules/profile-management.md` (view) |
 | "onboarding", "get started", "setup profile" | `modules/profile-management.md` (onboarding) |
 
-## Critical: First-Run Detection & Onboarding
+## Critical: Phase 1 Gate — User Onboarding & Fitness Profile Creation
+
+This skill runs only after **Phase 0 — Agent Profile Installation** and **Phase 0.5 —
+Profile Handoff & Gateway Setup** are complete. The active Agent Profile and its
+runtime `SOUL.md` must already exist.
+
+This skill manages the **Fitness User Profile** only. It never:
+
+- installs or configures an Agent Profile;
+- reads `SETUP.md`;
+- selects the runtime communication language;
+- creates, translates, or modifies `SOUL.md`;
+- treats a repository `*.example.md` file as the runtime Soul.
 
 Before **every** profile operation:
 
-1. Check whether `data/user/profile.json` exists and contains more than `{}`.
-2. Check whether `data/user/body-log/` exists and contains any non-empty monthly log.
+1. Verify that the active profile's primary `SOUL.md` exists. If it is missing, report
+   incomplete Agent Profile Installation and stop. Do not use a repository example as
+   a fallback.
+2. Check whether `data/user/profile.json` exists and contains more than `{}`.
+3. Check whether `data/user/body-log/` exists and contains any non-empty monthly log.
 
-If a profile is missing or empty, stop the requested workflow and begin onboarding.
-The runtime is language-agnostic: on first run, onboarding must ask which language
-Old-Iron should use for normal communication, finalize the complete Soul in that
-language, and write it directly to the active agent/profile's primary `SOUL.md`.
-Repository Soul files are read-only examples only and are never the runtime Soul.
-If a profile exists but `updated_at` is missing, invalid, or more than 30 days old,
-ask the user whether they want to review/update it before continuing; do not
-silently recalculate or overwrite it. A missing body log alone does not block
+If `data/user/profile.json` is missing or empty, enter **Phase 1 — User Onboarding &
+Fitness Profile Creation** and route to `modules/profile-management.md`. Use the
+language and persona already defined by the active profile's `SOUL.md`; do not ask the
+language-selection question again. Do not execute personalized diet, training,
+planning, or calculation workflows until the required Fitness User Profile data is
+collected.
+
+If a Fitness User Profile exists but `updated_at` is missing, invalid, or more than 30
+days old, ask the user whether they want to review/update it before continuing; do
+not silently recalculate or overwrite it. A missing body log alone does not block
 profile operations.
 
+A missing Fitness User Profile is not an Agent Profile installation failure. It means
+Phase 1 has not started or has not finished yet.
+
 Route to the onboarding or profile-review workflow in
-`modules/profile-management.md`. A missing body log means body-dependent
-calculations may require the user's current weight, and should trigger an offer to
-import historical body-log data before asking for a replacement current value.
+`modules/profile-management.md`. A missing body log means body-dependent calculations
+may require the user's current weight, and should trigger an offer to import
+historical body-log data before asking for a replacement current value.
 
 ## Xunji (训记)
 

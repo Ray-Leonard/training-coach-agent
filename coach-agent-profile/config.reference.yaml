@@ -1,5 +1,9 @@
 # Reference settings for the dedicated Hermes profile.
 #
+# This file is used by the existing host Agent during Phase 0 — Agent Profile
+# Installation. After Phase 0.5 handoff, the Training Coach runtime follows
+# AGENTS.md and the active profile's SOUL.md; it does not read SETUP.md.
+#
 # Create/select the profile first:
 #   hermes profile create trainingcoach --description "Private modular fitness coach"
 #   hermes profile use trainingcoach

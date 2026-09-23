@@ -1,26 +1,65 @@
-# SETUP.md — Agent Onboarding Guide
+# SETUP.md — Existing Agent Installation Protocol
 
 > ⚠️ **WORK IN PROGRESS — NOT READY FOR UNATTENDED DEPLOYMENT**
 >
-> Modules 3, 4, and 5 support daily use, but the full system is still under active
-> development. Keep a human in the loop and do not use it as medical advice.
+> This document is for the user's existing, non-Training-Coach Agent. It describes
+> Phase 0 and Phase 0.5 only. Modules 3–5 may support daily use, but the full project
+> remains under active development and is not medical advice.
 
-## Agent onboarding examples
+## Scope and handoff
 
-Hermes Agent is shown below only as an example host for this repository. Onboarding
-for other agents is being developed as needed; contributions and pull requests are
-welcome.
+The existing host Agent reads this document after the user provides the repository URL.
+It installs a separate Training Coach Agent Profile and then hands control to that
+profile. The installed Training Coach runtime does **not** read `SETUP.md`; its runtime
+rules are in `AGENTS.md`, the active profile's `SOUL.md`, and the skill needed for the
+current request.
 
-If you use Hermes, first create/select a dedicated profile:
+The installation phases are deliberately separate from Fitness User Onboarding:
+
+- **Phase 0 — Agent Profile Installation:** clone the repository, create and configure
+  the dedicated Agent Profile, choose the communication language, and install the
+  runtime Soul.
+- **Phase 0.5 — Profile Handoff & Gateway Setup:** invite the user to switch to the
+  new profile and set up its gateway. Stop after this handoff.
+- **Phase 1 — User Onboarding & Fitness Profile Creation:** performed later by the
+  Training Coach runtime after the user has switched profiles. It creates
+  `data/user/profile.json` and is documented by `AGENTS.md` and the
+  `user-profile-management` skill, not by this file.
+
+Do not perform Phase 1 during installation. In particular, do not ask for or write
+body measurements, weight, body-fat, goals, TDEE, macros, diet records, or training
+records.
+
+## Phase 0 — Agent Profile Installation
+
+### 1. Accept and clone the repository
+
+The user supplies the repository URL. Preserve the URL exactly, confirm the intended
+local destination, and clone it into a workspace that is not another project's data
+folder. Verify that the clone contains `AGENTS.md`, this `SETUP.md`, the `skills/`
+directory, and `coach-agent-profile/` before continuing.
+
+Do not read or import runtime data while installing. The repository's `data/` tree is
+for the installed coach's future runtime and must remain free of personal data during
+this phase.
+
+### 2. Create the dedicated Agent Profile
+
+For Hermes, create and inspect a dedicated profile rather than modifying the user's
+existing profile:
 
 ```bash
 hermes profile create trainingcoach --description "Private modular fitness coach"
-hermes profile use trainingcoach
 hermes profile show trainingcoach
 ```
 
-Next, locate the directory where you cloned this repository. Do not copy the example
-path from this document literally:
+If the profile already exists, inspect it and ask the user before reusing or changing
+it. Never silently overwrite an existing profile's Soul, configuration, credentials,
+or gateway settings.
+
+### 3. Configure the profile for this repository
+
+Find the absolute path of the clone. Do not copy the placeholder path literally:
 
 ```bash
 cd /path/to/your/cloned/training-coach-agent
@@ -28,8 +67,7 @@ REPO_DIR="$(pwd)"
 printf '%s\n' "$REPO_DIR"
 ```
 
-Use the absolute path printed by `pwd` in the profile configuration. In
-`hermes config edit`, merge the relevant settings from
+In `hermes config edit`, merge the relevant settings from
 `coach-agent-profile/config.reference.yaml`, replacing every path placeholder with
 that actual clone path:
 
@@ -42,93 +80,87 @@ skills:
     - /your/actual/clone/path/training-coach-agent/skills
 ```
 
-Then start the agent in that same repository:
+Keep provider credentials in the host's secure profile or environment. Never copy
+passwords, API keys, tokens, or private keys into the repository.
 
-```bash
-hermes --in "$REPO_DIR"
-```
+### 4. Choose the runtime communication language
 
-For a one-shot onboarding check:
+Ask the user which language the Training Coach should use for normal communication.
+The runtime is language-agnostic and the user may choose any language. The repository
+contains read-only examples that can guide translation:
 
-```bash
-hermes --in "$REPO_DIR" \
-  -z "Read SETUP.md, AGENTS.md, and the repository's read-only coach-agent-profile/SOUL.example.md; report the available modules without reading personal data."
-```
+- `coach-agent-profile/SOUL.example.md` — canonical English example;
+- `coach-agent-profile/SOUL.zh-CN.example.md` — reviewed Simplified Chinese example.
 
-`hermes profile use trainingcoach` makes the selection sticky. Use
-`hermes profile use default` to return to the default profile. Keep provider
-credentials in Hermes; do not copy them into this repository.
+These `*.example.md` files are templates only. They are never the runtime Soul and
+must not be modified, overwritten, or committed with the user's language preference.
 
-## Read order
+After the user confirms the language:
 
-1. The active agent/profile's primary `SOUL.md` — persona, selected language, and
-   safety boundaries. The repository's `coach-agent-profile/SOUL.example.md` is a
-   **read-only canonical English example**, not the runtime Soul. The localized
-   `coach-agent-profile/SOUL.zh-CN.example.md` is also a read-only example.
-2. `AGENTS.md` — intent routing, ownership, confirmation, and data contracts.
-3. The one `skills/<name>/SKILL.md` selected for the current request.
+1. Read the complete English example as the source of truth.
+2. Use a reviewed localized example as a translation aid when available.
+3. Otherwise translate the complete example while preserving its safety boundaries,
+   principles, language rule, and calibration examples.
+4. Write the finalized selected-language Soul **directly to the new Agent Profile's
+   runtime `SOUL.md`**. For a Hermes named profile, this is typically:
 
-## Choose Old-Iron's communication language
+   ```text
+   ~/.hermes/profiles/trainingcoach/SOUL.md
+   ```
 
-As part of user-profile onboarding, ask the user which language Old-Iron should use
-for normal communication. The runtime is language-agnostic: the user may choose any
-language. English and Simplified Chinese have read-only repository examples
-(`SOUL.example.md` and `SOUL.zh-CN.example.md`) that can guide translation; they do
-not limit the available language choices.
+5. Ensure the installed Soul says that normal replies use the selected language until
+   the user explicitly asks to switch.
 
-After the user confirms the choice, finalize the complete Soul and **write it directly
-to the active profile's primary `SOUL.md`**. For a Hermes named profile, use:
+The repository examples remain read-only. Do not create a runtime `SOUL.md` inside
+`coach-agent-profile/` and do not write the user's language choice into Git.
+
+### 5. Verify the installation
+
+Before handoff, verify all of the following:
+
+- the dedicated Agent Profile exists;
+- its repository/workspace and external skills paths point to this clone;
+- its runtime `SOUL.md` exists and contains the finalized selected-language Soul;
+- the repository's `*.example.md` files are unchanged;
+- `data/user/profile.json` has not been created or populated;
+- no body, goal, nutrition, or training record was created;
+- the existing user profile's credentials and gateway were not modified.
+
+If the active runtime Soul is missing, stop and report incomplete Agent Profile
+Installation. Do not use the repository examples as a runtime fallback after handoff.
+
+## Phase 0.5 — Profile Handoff & Gateway Setup
+
+Once verification passes, tell the user:
 
 ```text
-~/.hermes/profiles/<profile-name>/SOUL.md
+The Training Coach Agent Profile is installed.
+
+Please switch to the new `trainingcoach` profile and start a new conversation there.
+Then complete gateway setup for that profile. After switching, say:
+“Start my fitness onboarding.”
 ```
 
-This profile file is the runtime Soul and is the file onboarding must modify. Do not
-modify, overwrite, or install into the repository's `*.example.md` files, and do not
-commit the user's language choice. The active Soul must explicitly say that Old-Iron
-continues using the selected language unless the user asks to switch. Other agent
-hosts need their own adapter for the active Soul location; onboarding support for more
-hosts is being developed as needed, and pull requests are welcome.
+The existing host Agent must not claim that it has switched profiles or completed the
+gateway setup. The user must perform or approve those actions in the appropriate host
+UI/CLI. Do not begin Fitness User Onboarding in the installation session.
 
-## Daily workflow examples
+After the user switches to the new profile, the Training Coach runtime follows
+`AGENTS.md`. It does not read this file again as part of normal operation.
 
-Log food first; the daily result remains pending until the user answers whether the
-day is `training` or `rest`:
+## Installation boundary
 
-```bash
-python3 skills/diet-tracker/scripts/diet_log.py add-meal \
-  --date 2026-09-23 --meal-name breakfast --food-name oats \
-  --calories 500 --protein 30 --carbs 70 --fat 12
-python3 skills/diet-tracker/scripts/diet_log.py set-training-status rest \
-  --date 2026-09-23 --confirmed
-python3 skills/diet-tracker/scripts/calculate_daily_nutrition.py --date 2026-09-23
-```
+At the end of Phase 0.5:
 
-Create and analyze a confirmed actual workout from a reviewed JSON input:
+- Agent Profile Installation is complete;
+- profile handoff and gateway setup have been invited or completed by the user;
+- the Training Coach runtime is ready to start Phase 1;
+- Fitness User Onboarding has **not** started;
+- `data/user/profile.json` does **not** need to exist yet.
 
-```bash
-python3 skills/training-analyzer/scripts/workout_log.py create \
-  --input /path/to/reviewed-session.json --confirmed
-python3 skills/training-analyzer/scripts/analyze_training.py --date 2026-09-23
-```
+## Rollback and safety
 
-Generate and explicitly confirm a proposed plan, or derive a separate deload:
-
-```bash
-python3 skills/training-planning/scripts/generate_plan.py generate \
-  --start 2026-09-23 --days 10 --split upper-lower
-python3 skills/training-planning/scripts/plan_manager.py confirm \
-  --plan 2026-09-23-10-day-plan.json --confirmed
-python3 skills/training-planning/scripts/generate_deload.py \
-  --source-plan 2026-09-23-10-day-plan.json
-```
-
-## Safety and privacy
-
-- Runtime files under `data/` are Git-ignored; only `.gitkeep` markers belong in
-  version control.
-- Never print or commit API keys, passwords, tokens, `.env`, or raw personal data.
-- Never infer daily training status or turn a proposed plan into an actual record.
-- Every module writes only its own sandbox.
-- All arithmetic comes from the owning module's Python scripts.
-- Tests never call external APIs.
+If installation fails, report the exact failed step and leave the user's existing
+profile untouched. Do not delete profiles, repositories, credentials, or gateway
+settings as an automatic rollback. The user can remove an incomplete dedicated profile
+manually after reviewing what was created.

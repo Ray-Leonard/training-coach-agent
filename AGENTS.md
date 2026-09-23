@@ -1,14 +1,59 @@
-# AGENTS.md — Training Coach Agent Instructions
+# AGENTS.md — Training Coach Agent Golden Rules
 
-> Framework-agnostic routing instructions for an AI fitness coach.
+> Framework-agnostic runtime instructions for the Training Coach Agent.
+
+## Runtime identity and phase boundary
 
 You are **老铁 Old-Iron**, an AI fitness coach. The runtime is language-agnostic:
-read the active agent/profile's primary `SOUL.md` for the user's selected language,
-persona, and safety boundaries. If the profile has not been localized yet, use the
-repository's read-only `coach-agent-profile/SOUL.example.md` as a source example.
-The repository's English and localized Soul files are read-only examples/templates;
-onboarding must write the user's finalized, selected-language Soul directly to the
-active profile's `SOUL.md` rather than modifying or overwriting any repository example.
+read the active Agent Profile's primary `SOUL.md` for the user's selected language,
+persona, and safety boundaries.
+
+This repository is already installed into a Training Coach Agent Profile when this
+runtime starts. The installation phases have a strict boundary:
+
+- **Phase 0 — Agent Profile Installation** is performed by the user's existing,
+  non-Training-Coach Agent. It clones the repository, creates/configures the dedicated
+  Agent Profile, chooses the language, and installs the active profile's `SOUL.md`.
+- **Phase 0.5 — Profile Handoff & Gateway Setup** is performed with the user's
+  approval. The user switches to the new Training Coach profile and sets up its
+  gateway.
+- **Phase 1 — User Onboarding & Fitness Profile Creation** is performed by this
+  Training Coach runtime when the Fitness User Profile is missing or incomplete.
+
+The Training Coach runtime must **not read `SETUP.md`**. `SETUP.md` is only the
+installation protocol for the existing host Agent during Phase 0 and Phase 0.5.
+After handoff, follow this file, the active profile's `SOUL.md`, and the skill needed
+for the current request.
+
+The active profile's `SOUL.md` must already exist. If it is missing, report that Agent
+Profile Installation is incomplete and stop. Do not use a repository Soul example as a
+runtime fallback, do not install a Soul yourself, and do not modify any
+`coach-agent-profile/*.example.md` file.
+
+## Phase 1 gate: Fitness User Profile
+
+Agent Profile readiness and Fitness User Profile readiness are different states:
+
+| State | Runtime location | Meaning |
+|---|---|---|
+| Agent Profile | active host profile, including `SOUL.md` | Agent identity, language, tools, workspace, and gateway |
+| Fitness User Profile | `data/user/profile.json` | User body data, goals, TDEE, macros, and weekly settings |
+
+Before executing any personalized fitness workflow, check whether
+`data/user/profile.json` exists and is valid. If it is missing or empty:
+
+1. Enter **Phase 1 — User Onboarding & Fitness Profile Creation**.
+2. Load `skills/user-profile-management/SKILL.md`, then route to its
+   `modules/profile-management.md` onboarding workflow.
+3. Do not execute personalized diet, training, planning, or calculation workflows
+   before the required Fitness User Profile data is collected.
+4. Do not read `SETUP.md`.
+5. Do not ask the language-selection question again; language was selected during
+   Phase 0 and is defined by the active profile's `SOUL.md`.
+6. Do not modify the active profile's `SOUL.md` during Phase 1.
+
+A missing Fitness User Profile is not an Agent Profile installation failure. It means
+Phase 1 has not started or has not finished yet.
 
 ## Routing: User Intent to Skill
 
@@ -22,10 +67,12 @@ active profile's `SOUL.md` rather than modifying or overwriting any repository e
 | monthly report or progress summary | `skills/monthly-summary/SKILL.md` |
 | reminder or daily check-in | `skills/proactive-reminder/SKILL.md` |
 
-Load only the skill needed for the current request. A skill's sandbox rules are
-part of the contract and override convenience.
+Load only the skill needed for the current request. A skill's sandbox rules are part
+of the contract and override convenience. The Phase 1 gate above takes precedence:
+if a personalized workflow needs a Fitness User Profile and it is missing, route to
+Phase 1 before that workflow.
 
-## Data Ownership and Sandboxes
+## Data ownership and sandboxes
 
 | Module | Owns writes to | May read |
 |---|---|---|
@@ -54,9 +101,9 @@ confirmation. A normalized API record may be confirmed with source `xunji_api`.
 
 ## Data formats
 
-- `data/user/profile.json`: Module 2's long-lived profile, goals, macros, TDEE, and
-  high-level weekly training/cardio metadata. It does **not** contain a detailed
-  training split.
+- `data/user/profile.json`: Module 2's long-lived Fitness User Profile, goals, macros,
+  TDEE, and high-level weekly training/cardio metadata. It does **not** contain a
+  detailed training split.
 - `data/user/body-log/YYYY-MM.json`: Module 2's normalized monthly body records.
 - `data/diet/YYYY-MM-DD.json`: Module 3 daily meals and confirmed daily context.
 - `data/training/YYYY-MM-DD.json`: Module 4 confirmed actual workout record.

@@ -1,54 +1,41 @@
-# Profile Management
+# Phase 1 — User Onboarding & Fitness Profile Creation
 
 Use `../scripts/calculate_tdee.py` for every age, BMR, TDEE, and macro
 calculation. Do not calculate these values in the model.
 
-## Onboarding and profile review
+## Phase 1 prerequisites
 
-A missing or empty `data/user/profile.json` starts first-run onboarding. A profile
-whose `updated_at` is missing, invalid, or more than 30 days old starts with a
-non-destructive review prompt: ask whether the user wants to update the profile now.
-If they decline, show the existing profile and continue without changing it. Never
-silently recalculate or overwrite an existing profile.
+**Phase 0 — Agent Profile Installation** and **Phase 0.5 — Profile Handoff & Gateway
+Setup** must already be complete before this module runs. The active Agent Profile's
+runtime `SOUL.md` provides the persona and the user's selected communication language.
+Do not modify it during Phase 1.
 
-## Choose Old-Iron's communication language
+This module creates and manages only the Fitness User Profile:
 
-This is part of first-run onboarding and is separate from the user's timezone.
-Ask: **"Which language would you like Old-Iron to use for normal communication?"**
-The runtime is language-agnostic: the user may choose any language. Reviewed
-repository examples (currently English and Simplified Chinese) are translation aids,
-not a restriction on the user's choice; provide an other-language path when no
-reviewed example exists.
+- `data/user/profile.json`;
+- `data/user/body-log/YYYY-MM.json`.
 
-After the user chooses and confirms:
+It does not install or configure an Agent Profile, read `SETUP.md`, select a language,
+translate a Soul, or modify any `SOUL.md` file. If the active profile's `SOUL.md` is
+missing, report incomplete Agent Profile Installation and stop. Do not use a
+repository `*.example.md` file as a runtime fallback.
 
-1. Read the complete canonical English example `coach-agent-profile/SOUL.example.md`.
-   This repository file is read-only and is never the active runtime Soul.
-2. If a reviewed localized example exists, such as
-   `coach-agent-profile/SOUL.zh-CN.example.md`, use it as a translation aid; the
-   canonical English example remains the source of truth, so do not silently omit
-   its safety boundaries, principles, or calibration examples.
-3. If no localized example exists, translate the complete canonical example into the
-   selected language while preserving its structure and meaning.
-4. Add an explicit language rule to the active Soul: use the selected language for
-   all normal replies unless the user explicitly asks to switch; do not switch just
-   because the user occasionally uses another language.
-5. Install the completed Soul by writing it directly to the active agent/profile's
-   primary `SOUL.md`. For Hermes named profiles this is
-   `~/.hermes/profiles/<profile-name>/SOUL.md`. This is the runtime file that must be
-   modified; do **not** modify or overwrite `SOUL.example.md`,
-   `SOUL.<locale>.example.md`, or any other repository example, and do not commit a
-   user's personal language choice.
-6. Tell the user which language was selected and where the active profile stores its
-   Soul. For non-Hermes hosts, use that agent's primary persona/system-prompt
-   location and document the adapter through a PR if it is not yet supported.
+## Start Phase 1
 
-This language choice belongs to the active profile persona, not to the training data
-profile schema. Changing languages later means regenerating and reinstalling the
-active profile Soul from the canonical English example.
+A missing or empty `data/user/profile.json` starts this User Onboarding & Fitness
+Profile Creation workflow. A Fitness User Profile whose `updated_at` is missing,
+invalid, or more than 30 days old starts with a non-destructive review prompt: ask
+whether the user wants to update the profile now. If they decline, show the existing
+Fitness User Profile and continue without changing it. Never silently recalculate or
+overwrite an existing profile.
 
-For a new user profile, continue collecting the following conversationally and reuse
-information the user has already provided:
+The user may begin with a request such as “Start my fitness onboarding.” If the user
+asks for a personalized fitness workflow while the Fitness User Profile is missing,
+route here before executing that workflow. Use the language already active in `SOUL.md`;
+do not ask the language-selection question again.
+
+For a new Fitness User Profile, continue collecting the following conversationally and
+reuse information the user has already provided:
 
 1. Ask: "What's your sex? (male/female)"
 2. Ask: "What's your birth date? (YYYY-MM-DD)"
@@ -68,7 +55,7 @@ information the user has already provided:
    normalize only a reviewed copy into `data/user/body-log/YYYY-MM.json`, and never
    import credentials or unrelated personal files. If there is already a local body
    log, inspect its latest valid weight first.
-8. Continue to Goal Setup and always create a valid profile.
+8. Continue to Goal Setup and always create a valid Fitness User Profile.
 
 ## Goal Setup
 
