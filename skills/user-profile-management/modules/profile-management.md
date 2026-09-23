@@ -11,8 +11,39 @@ non-destructive review prompt: ask whether the user wants to update the profile 
 If they decline, show the existing profile and continue without changing it. Never
 silently recalculate or overwrite an existing profile.
 
-For a new profile, collect the following conversationally and reuse information the
-user has already provided:
+## Choose Old-Iron's communication language
+
+This is part of first-run onboarding and is separate from the user's timezone.
+Ask: **"Which language would you like Old-Iron to use for normal communication?"**
+Offer the languages for which the host has a reviewed Soul example, plus an
+other-language option. The user may choose English, Simplified Chinese, or another
+language.
+
+After the user chooses and confirms:
+
+1. Read the complete canonical `coach-agent-profile/SOUL.md`.
+2. If a reviewed example exists, use it as a translation aid; the canonical English
+   Soul remains the source of truth, so do not silently omit its safety boundaries,
+   principles, or calibration examples.
+3. If no example exists, translate the complete canonical Soul into the selected
+   language while preserving its structure and meaning.
+4. Add an explicit language rule to the active Soul: use the selected language for
+   all normal replies unless the user explicitly asks to switch; do not switch just
+   because the user occasionally uses another language.
+5. Install the localized copy as the active agent/profile's primary `SOUL.md`.
+   For Hermes named profiles this is `~/.hermes/profiles/<profile-name>/SOUL.md`.
+   Do **not** overwrite `coach-agent-profile/SOUL.md` or `SOUL.<locale>.md` in this
+   repository, and do not commit a user's personal language choice.
+6. Tell the user which language was selected and where the active profile stores its
+   Soul. For non-Hermes hosts, use that agent's primary persona/system-prompt
+   location and document the adapter through a PR if it is not yet supported.
+
+This language choice belongs to the active profile persona, not to the training data
+profile schema. Changing languages later means regenerating and reinstalling the
+active profile Soul from the canonical template.
+
+For a new user profile, continue collecting the following conversationally and reuse
+information the user has already provided:
 
 1. Ask: "What's your sex? (male/female)"
 2. Ask: "What's your birth date? (YYYY-MM-DD)"
