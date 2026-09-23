@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "id": "camp-id",
+  "title": "N-day diet camp",
+  "goal": "cut",
+  "start_date": "YYYY-MM-DD",
+  "end_date": "YYYY-MM-DD",
+  "days": 10,
+  "target_daily_deficit_kcal": 700,
+  "baseline_tdee_kcal": 0,
+  "target_intake_kcal": 0,
+  "timezone": "IANA/Timezone",
+  "created_at": "ISO-8601 timestamp",
+  "updated_at": "ISO-8601 timestamp",
+  "entries": []
+}

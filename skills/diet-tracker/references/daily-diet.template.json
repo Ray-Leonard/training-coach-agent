@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "date": "YYYY-MM-DD",
+  "timezone": "IANA/Timezone",
+  "training_status": null,
+  "training_status_confirmed": false,
+  "training_confirmation_source": null,
+  "meals": [],
+  "actual_expenditure_kcal": null,
+  "expenditure_source": null,
+  "notes": ""
+}
