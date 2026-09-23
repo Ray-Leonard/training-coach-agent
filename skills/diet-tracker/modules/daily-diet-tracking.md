@@ -1,49 +1,61 @@
 # Daily Diet Tracking
 
-## Workflow
+## Required conversation flow
 
-1. Read `data/user/profile.json` for the user's timezone and targets.
-2. For a daily check-in, ask **“今天练不练？”** and wait for an explicit `training`
-   or `rest` answer. Do not use the training plan as evidence that training occurred.
-3. Parse the meal and nutrition values. If a value is unknown, ask for it or use a
-   confirmed nutrition database entry; never invent nutrition numbers.
-4. Show the proposed meal entry and ask for confirmation before writing if the user
-   is correcting an existing record. New user-reported meals may be logged after the
-   normal conversational confirmation.
-5. Run `scripts/diet_log.py add-meal ...` for the write.
-6. Run `scripts/diet_log.py summary --date YYYY-MM-DD` for totals.
-7. Explain whether the result is complete or pending. A pending result must name the
-   missing confirmation/data instead of presenting a guessed deficit.
+1. Read `data/user/profile.json` for timezone and nutrition targets.
+2. Accept a user-confirmed meal from manual text, a reviewed image extraction, or a
+   known Module 1 nutrition record. Unknown numbers remain unknown; ask instead of
+   guessing.
+3. Log the meal. A meal may be saved before daily training status is known.
+4. For every daily check-in, explicitly ask whether today is `training` or `rest`.
+   Do not infer. If the answer is unknown, leave it unknown and report pending.
+5. Run the calculation entry point and present its values without recalculating.
 
 ## Storage
 
-One strict JSON file per local calendar date:
+One atomic JSON file per local date:
 
 `data/diet/YYYY-MM-DD.json`
 
-The schema is defined in `../references/daily-diet.template.json`. The script keeps
-writes atomic and refuses to replace a corrupted file with an empty record.
+The stable shape is in `../references/daily-diet.template.json`. A meal includes an
+ID, meal name, food name and item list, calories, protein, carbs, fat, source, and an
+offset-aware timestamp. The script validates loaded files and never replaces a
+corrupt record with an empty one.
 
 ## Commands
 
 ```bash
+python3 skills/diet-tracker/scripts/diet_log.py add-meal \
+  --date 2026-09-23 --meal-name breakfast --food-name "oats and yogurt" \
+  --item oats --item yogurt --calories 500 --protein 35 --carbs 60 --fat 12 \
+  --source manual
+
+python3 skills/diet-tracker/scripts/diet_log.py update-meal \
+  --date 2026-09-23 --meal-id MEAL_ID --calories 520
+
+python3 skills/diet-tracker/scripts/diet_log.py get-meal \
+  --date 2026-09-23 --meal-id MEAL_ID
+
+python3 skills/diet-tracker/scripts/diet_log.py remove-meal \
+  --date 2026-09-23 --meal-id MEAL_ID
+
 python3 skills/diet-tracker/scripts/diet_log.py set-training-status training \
   --date 2026-09-23 --confirmed
-python3 skills/diet-tracker/scripts/diet_log.py add-meal --date 2026-09-23 \
-  --meal-name breakfast --food-name "food from Module 1" \
-  --calories 500 --protein 35 --carbs 55 --fat 15
-python3 skills/diet-tracker/scripts/diet_log.py summary --date 2026-09-23
+
+python3 skills/diet-tracker/scripts/calculate_daily_nutrition.py \
+  --date 2026-09-23
 ```
 
-`--confirmed` is intentionally required by the status command. The agent must only
-supply it after the user has explicitly answered the daily question.
+`--confirmed` is an evidence flag, not a convenience default.
 
-## Deficit semantics
+## Target and deficit semantics
 
-The script reports intake calories/macros and, when possible, an estimated or manual
-expenditure source. It calculates:
+- Calorie target first uses `profile.daily_macros.calories_kcal`.
+- If absent, it uses `profile.tdee_kcal + profile.calorie_delta_kcal`.
+- A manually recorded expenditure is labelled with its source; otherwise profile
+  TDEE is labelled `profile_tdee_estimate`.
+- Missing meals are `null`/pending, never zero intake.
+- Energy deficit is reported only when intake, expenditure, and the daily
+  training/rest confirmation are present.
 
-`actual_deficit_kcal = expenditure_kcal - intake_kcal`
-
-It does not silently treat an absent meal log as zero calories or an absent training
-answer as rest.
+See `../references/assumptions.md` for source and integration boundaries.

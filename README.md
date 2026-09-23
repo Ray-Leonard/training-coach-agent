@@ -1,50 +1,53 @@
 # Training Coach Agent: 老铁 Old-Iron
 
-An open-source, modular AI fitness coach system. Point an AI agent at this repo and
-it can maintain nutrition data, manage a profile, track daily diet, and generate a
-profile-driven training-plan proposal while preserving strict module sandboxes.
+An open-source, modular AI fitness coach. Point an AI agent at this repository and
+it can maintain nutrition data, manage a profile, track daily diet, record and
+analyze confirmed workouts, and manage training-plan proposals while preserving
+strict module sandboxes.
 
-> **AI agent onboarding:** Read [SETUP.md](SETUP.md) and then [AGENTS.md](AGENTS.md).
+> **Work in progress:** Modules 3–5 are usable for daily workflows, but the complete
+> project is not production-ready or a substitute for medical care.
 
-[中文版 (Chinese)](README.zh-CN.md)
+> **AI agent onboarding:** Read [SETUP.md](SETUP.md), then [AGENTS.md](AGENTS.md).
 
----
+[中文版](README.zh-CN.md)
 
 ## Modules
 
 | # | Module | Status | What it does |
 |---|---|---|---|
-| 1 | **Nutrition Database Management** | ✅ Complete | Maintains personal food and meal-template data from labels or web research. |
-| 2 | **User Profile Management** | ✅ Complete | Manages body data, goals, macros, TDEE, and high-level weekly training/cardio metadata. |
-| 3 | **Diet Tracker** | 🧪 MVP usable | Logs daily meals, calculates deterministic totals and estimated/manual deficit, and runs configurable multi-day diet camps. |
-| 4 | **Training Analyzer** | 📋 Planned | Records actual workouts, detects PRs, and analyzes progression. |
-| 5 | **Training Planning** | 🧪 MVP usable | Generates a proposed detailed split and schedule in its own sandbox without modifying the profile. |
-| 6 | **Monthly Summary** | 📋 Planned | Aggregates training, diet, body, and goal trends into monthly reports. |
-| 7 | **Proactive Reminder** | 📋 Planned | Provides timezone-aware, non-intrusive check-ins and reminders. |
+| 1 | **Nutrition Database Management** | ✅ Complete | Maintains personal food and meal-template data. |
+| 2 | **User Profile Management** | ✅ Complete | Manages body data, goals, macros, TDEE, and weekly training/cardio metadata. |
+| 3 | **Diet Tracker** | ✅ Usable | Logs meal CRUD, reports target-versus-actual macros, and labels estimated/manual energy deficit. |
+| 4 | **Training Analyzer** | ✅ Usable | Stores confirmed actual sessions and calculates volume, Epley 1RM, RPE, frequency, and PR flags. |
+| 5 | **Training Planning** | ✅ Usable | Generates, validates, confirms, and creates reduced-volume deload plan proposals without changing the profile. |
+| 6 | **Monthly Summary** | 📋 Planned | Aggregates training, diet, body, and goal trends. |
+| 7 | **Proactive Reminder** | 📋 Planned | Provides timezone-aware, non-intrusive check-ins. |
 
-The MVP intentionally distinguishes **planned** training from **confirmed actual**
-training. Daily tracking must ask the user whether they trained; it never infers
-that from a calendar or a generated plan.
+Plans and actual training are deliberately separate. Every daily check-in asks the
+user whether today is `training` or `rest`; no calendar or proposal can answer for
+them.
 
----
+## Quick start with a Hermes profile
 
-## Quick Start
+```bash
+hermes profile create trainingcoach --description "Private modular fitness coach"
+hermes profile use trainingcoach
+hermes profile show trainingcoach
+hermes config edit
+hermes --in /absolute/path/to/training-coach-agent
+```
 
-1. Clone this repo.
-2. Copy `.env.example` to `.env` and fill optional integration keys yourself.
-3. Tell your AI agent: `Read SETUP.md and get started`.
-4. For a plan proposal, load `skills/training-planning/SKILL.md`.
-5. For meals or a deficit camp, load `skills/diet-tracker/SKILL.md`.
+During `hermes config edit`, merge the settings from
+[`coach-agent-profile/config.reference.yaml`](coach-agent-profile/config.reference.yaml)
+and replace its absolute path placeholder. Then tell the agent: `Read SETUP.md and
+get started`. To leave this profile later, run `hermes profile use default`.
 
-User data lives under `data/` and is git-ignored. Only directory markers are tracked.
-Each module writes only to its own data sandbox; see [AGENTS.md](AGENTS.md).
+Runtime user data lives under `data/` and is Git-ignored. Credentials belong in the
+active Hermes profile or environment, never in this repository.
 
----
+## Coach persona
 
-## Coach Persona
-
-The coach is **老铁 Old-Iron** — a strict but caring Chinese-speaking gym veteran.
-The persona and safety boundaries are defined in
+The coach is **老铁 Old-Iron** — strict, caring, and Chinese-speaking. Persona and
+safety boundaries live in
 [`coach-agent-profile/SOUL.md`](coach-agent-profile/SOUL.md).
-
----

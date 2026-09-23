@@ -1,22 +1,24 @@
-# Reference config for Hermes profile
-# Copy relevant sections to ~/.hermes/profiles/coach/config.yaml
-
-# --- Skills ---
-# Point Hermes at the project's skills directory
-# skills:
-#   external_dirs:
-#     - /home/ubuntu/workspace/training-coach-agent/skills
-
-# --- Working Directory ---
-# Set to the repo root so AGENTS.md is auto-loaded
-# terminal:
-#   cwd: /home/ubuntu/workspace/training-coach-agent
-
-# --- Model Suggestions ---
-# Use a cheap model for daily tracking (diet logging, weight updates)
-# model:
-#   default: deepseek/deepseek-chat
+# Reference settings for the dedicated Hermes profile.
 #
-# Switch to a powerful model for analysis (training planning, monthly reports)
-# model:
-#   default: anthropic/claude-sonnet-4
+# Create/select the profile first:
+#   hermes profile create trainingcoach --description "Private modular fitness coach"
+#   hermes profile use trainingcoach
+#   hermes profile show trainingcoach
+#   hermes config edit
+#
+# Merge the settings below into the active profile config. Replace the placeholder
+# with the absolute repository path; do not copy credentials into this file.
+
+terminal:
+  cwd: /absolute/path/to/training-coach-agent
+
+skills:
+  external_dirs:
+    - /absolute/path/to/training-coach-agent/skills
+
+# Start or resume the selected profile in the correct workspace:
+#   hermes --in /absolute/path/to/training-coach-agent
+#   hermes --in /absolute/path/to/training-coach-agent --resume latest
+#
+# Model/provider credentials stay in the Hermes profile. Select them interactively:
+#   hermes model

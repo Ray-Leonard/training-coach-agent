@@ -1,72 +1,65 @@
 ---
 name: diet-tracker
-description: "Use for logging meals, daily nutrition totals, deficit tracking, and configurable multi-day diet camps."
-version: 1.0.0
+description: "Use for meal CRUD, daily calorie and macro progress, and estimated or manual energy deficit in the user's normal goal context."
+version: 2.0.0
 ---
 
 # Diet Tracker
 
-## When to Use
+## When to use
 
-Use this skill when the user reports food or drinks, asks for daily calories/macros,
-starts or checks a diet camp, or wants actual deficit versus a target.
+Use this skill when the user reports food or drinks, corrects/removes a meal, asks
+for daily calories/macros, or asks how intake compares with their profile target.
 
-## Architecture
+## Router
+
+| Intent | Read | Run |
+|---|---|---|
+| Log, correct, inspect, or delete food | `modules/daily-diet-tracking.md` | `scripts/diet_log.py` |
+| Daily target, macro progress, expenditure, or deficit | `modules/daily-diet-tracking.md` and `references/assumptions.md` | `scripts/calculate_daily_nutrition.py` |
+| Optional Xunji/Synfit import question | `references/assumptions.md` | Use the documented manual fallback; no live client is shipped |
+
+## Data sandbox
+
+- Write only `data/diet/YYYY-MM-DD.json`.
+- Read Module 2's `data/user/profile.json` and Module 1 nutrition records.
+- Never write `data/user/`, `data/nutrition/`, `data/training/`, or
+  `data/training-plans/`.
+- Store only confirmed daily training/rest context, never a detailed workout or plan.
+
+## Non-negotiable daily rule
+
+For **every daily check-in**, ask: **“今天是 training 还是 rest？如果还不知道，就先
+保持 unknown。”** Never infer the answer from a plan, calendar, previous behavior,
+or a missing workout.
+
+Meals may be recorded before the answer. Until the user explicitly answers, the
+daily result remains pending and no energy deficit is presented as complete. Pass
+`--confirmed` to the status command only after that explicit answer.
+
+## Workflow
+
+1. Read profile timezone and targets. If onboarding is incomplete, route to Module 2.
+2. Prefer user-confirmed manual/text/image-agent meal input. Never invent nutrition.
+3. Use `diet_log.py` for every write and all CRUD validation.
+4. Ask the daily training/rest question if it has not been explicitly answered.
+5. Use `calculate_daily_nutrition.py` for target-versus-actual output.
+6. Present a concise formatted result; do not expose raw personal JSON.
+
+All totals, percentages, target fallback, and energy balance are calculated in
+Python. The model must not redo the arithmetic.
+
+## Files
 
 ```text
 skills/diet-tracker/
 ├── SKILL.md
-├── modules/
-│   ├── daily-diet-tracking.md
-│   └── cut-camp.md
-├── scripts/
-│   ├── common.py
-│   ├── diet_log.py
-│   └── cut_camp.py
-└── references/
-    ├── daily-diet.template.json
-    └── cut-camp.template.json
+├── modules/daily-diet-tracking.md
+├── references/
+│   ├── assumptions.md
+│   └── daily-diet.template.json
+└── scripts/
+    ├── calculate_daily_nutrition.py
+    ├── common.py
+    └── diet_log.py
 ```
-
-## Routing
-
-| User intent | Read |
-|---|---|
-| “I ate…”, “log this meal”, “今天吃了什么” | `modules/daily-diet-tracking.md` |
-| “how many calories today”, “daily macros”, “actual deficit” | `modules/daily-diet-tracking.md` |
-| “start a 10-day cut”, “check camp progress” | `modules/cut-camp.md` |
-
-## Data Sandbox
-
-- This skill exclusively writes `data/diet/`.
-- It may read `data/user/profile.json` and Module 1 nutrition files.
-- It must never write `data/user/`, `data/nutrition/`, `data/training/`, or
-  `data/training-plans/`.
-- Detailed training plans belong to Module 5. A diet record may store only the
-  user's explicitly confirmed daily training status as context for the calculation.
-
-## Non-negotiable daily confirmation
-
-Before completing any daily check-in or calculating a day's camp result, ask:
-**“今天练不练？请明确告诉我 training 或 rest；如果还不确定，就先说不知道。”**
-Never infer training from the calendar, the plan, previous weeks, or an absent log.
-An unconfirmed day remains pending and has no actual deficit value.
-
-## Calculation rules
-
-- Intake totals and deficit arithmetic are performed by `scripts/diet_log.py` and
-  `scripts/cut_camp.py`, never by the model.
-- `actual_deficit_kcal = expenditure_kcal - intake_kcal`.
-- The profile TDEE may be used only as an explicitly labelled estimate when no
-  manual expenditure is recorded. Missing intake or training confirmation stays
-  pending; it is not converted into zero.
-- Read JSON with `read_file` and format user-facing summaries inline. Do not dump
-  raw script JSON to the user.
-
-## First use
-
-1. Read `data/user/profile.json` for timezone and baseline TDEE.
-2. If profile onboarding is incomplete, route to Module 2 first.
-3. Create the daily record only after the user's training status is confirmed for a
-   daily check-in. Meal logging may happen before that, but the result stays pending.
-4. Use the scripts for all writes and calculations.

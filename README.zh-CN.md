@@ -1,48 +1,50 @@
 # Training Coach Agent：老铁 Old-Iron
 
-一个开源、模块化的 AI 健身教练系统。让 AI Agent 指向这个仓库，它就能维护
-营养数据库、管理用户 profile、追踪每日饮食，并在不跨写模块数据的前提下生成
-训练计划草案。
+一个开源、模块化的 AI 健身教练系统。让 AI Agent 指向本仓库后，它可以维护营养
+数据库、管理 profile、追踪每日饮食、记录并分析已确认的实际训练，以及管理训练
+计划草案，同时严格遵守各模块的数据沙箱。
 
-> **AI Agent 上岗：** 请先读 [SETUP.md](SETUP.md)，然后读 [AGENTS.md](AGENTS.md)。
+> **开发中：** 模块 3–5 已可用于日常流程，但整个项目仍未达到生产环境标准，
+> 也不能替代医疗服务。
+
+> **AI Agent 上岗：** 先读 [SETUP.md](SETUP.md)，再读 [AGENTS.md](AGENTS.md)。
 
 [English version](README.md)
-
----
 
 ## 模块一览
 
 | # | 模块 | 状态 | 功能 |
 |---|---|---|---|
-| 1 | **Nutrition Database Management** | ✅ 已完成 | 管理个人食物库和餐单模板，支持营养标签或 Web 数据入库。 |
-| 2 | **User Profile Management** | ✅ 已完成 | 管理身体数据、目标、宏量素、TDEE，以及每周训练/有氧 meta 信息。 |
-| 3 | **Diet Tracker** | 🧪 MVP 可用 | 记录每日饮食，确定性计算摄入和估算/手动赤字，支持可配置的多日营期。 |
-| 4 | **Training Analyzer** | 📋 规划中 | 记录实际训练、检测 PR、分析训练进步。 |
-| 5 | **Training Planning** | 🧪 MVP 可用 | 生成独立保存的详细训练 split 和日程草案，不修改 profile。 |
-| 6 | **Monthly Summary** | 📋 规划中 | 汇总训练、饮食、身体和目标趋势，生成月度报告。 |
-| 7 | **Proactive Reminder** | 📋 规划中 | 提供遵循时区、克制且不打扰的主动提醒。 |
+| 1 | **Nutrition Database Management** | ✅ 已完成 | 管理个人食物库和餐单模板。 |
+| 2 | **User Profile Management** | ✅ 已完成 | 管理身体数据、目标、宏量素、TDEE 和每周训练/有氧元数据。 |
+| 3 | **Diet Tracker** | ✅ 日常可用 | 对餐食做增删改查，汇报摄入与目标宏量素，并标注估算/手动能量赤字。 |
+| 4 | **Training Analyzer** | ✅ 日常可用 | 保存已确认的实际训练，计算训练量、Epley 1RM、RPE、频率和 PR 标记。 |
+| 5 | **Training Planning** | ✅ 日常可用 | 生成、校验和确认训练计划草案，并另存减量计划，不修改 profile。 |
+| 6 | **Monthly Summary** | 📋 规划中 | 汇总训练、饮食、身体与目标趋势。 |
+| 7 | **Proactive Reminder** | 📋 规划中 | 提供遵循时区、克制且不打扰的提醒。 |
 
-MVP 明确区分**计划中的训练**和**用户确认实际发生的训练**。每日追踪都必须
-询问用户今天训练还是休息，不能从日历或计划中推断。
+系统严格区分训练计划和实际训练。每次日常打卡都要明确询问今天是 `training`
+还是 `rest`，不能由日历或计划替用户回答。
 
----
+## 使用独立 Hermes profile
 
-## 快速开始
+```bash
+hermes profile create trainingcoach --description "Private modular fitness coach"
+hermes profile use trainingcoach
+hermes profile show trainingcoach
+hermes config edit
+hermes --in /absolute/path/to/training-coach-agent
+```
 
-1. Clone 这个仓库。
-2. 把 `.env.example` 复制成 `.env`，实际 key 由你自己填写。
-3. 告诉 AI Agent：`Read SETUP.md and get started`。
-4. 需要训练计划时，加载 `skills/training-planning/SKILL.md`。
-5. 需要记录饮食或运行营期时，加载 `skills/diet-tracker/SKILL.md`。
+执行 `hermes config edit` 时，把
+[`coach-agent-profile/config.reference.yaml`](coach-agent-profile/config.reference.yaml)
+中的配置合并进去，并替换绝对路径占位符。进入会话后告诉 Agent：`Read SETUP.md
+and get started`。需要退出该 profile 时运行 `hermes profile use default`。
 
-用户数据位于 `data/`，已被 Git 忽略；仓库只保留目录结构 marker。每个模块只
-写自己的 data sandbox，详见 [AGENTS.md](AGENTS.md)。
-
----
+运行时用户数据位于 `data/` 并由 Git 忽略。凭据只能放在当前 Hermes profile 或
+环境变量中，绝不能写入仓库。
 
 ## 教练人设
 
-教练名叫 **老铁 Old-Iron**——一个严格但真心希望你进步的中文健身老炮。人设和
-安全边界定义在 [`coach-agent-profile/SOUL.md`](coach-agent-profile/SOUL.md)。
-
----
+教练名叫 **老铁 Old-Iron**——严格但真心希望你进步的中文健身老炮。人设和安全
+边界定义在 [`coach-agent-profile/SOUL.md`](coach-agent-profile/SOUL.md)。
