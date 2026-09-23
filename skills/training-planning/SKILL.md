@@ -1,49 +1,57 @@
 ---
 name: training-planning
-description: "Use for proposing and storing detailed training plans without modifying Module 2 profile data."
-version: 1.0.0
+description: "Use for generating, validating, confirming, and deriving deload variants of detailed training-plan proposals."
+version: 2.0.0
 ---
 
 # Training Planning
 
-## When to Use
+## When to use
 
-Use this skill when the user asks for a training plan, a detailed split, a new
-program, or an adjustment to a proposed schedule.
+Use this skill for a new training program, detailed split, proposal confirmation,
+plan listing/loading, or a reduced-volume deload proposal.
 
-## Architecture
+## Router
+
+| Intent | Read | Run |
+|---|---|---|
+| Generate or choose a split | `modules/training-plan-management.md` | `scripts/generate_plan.py` |
+| List, load, or explicitly confirm a proposal | `modules/training-plan-management.md` | `scripts/plan_manager.py` |
+| Create a reduced-volume variant | `modules/deload-plan.md` | `scripts/generate_deload.py` |
+
+## Data ownership
+
+- Read `data/user/profile.json` for goal, timezone, and high-level weekly
+  training/cardio metadata.
+- May read Module 4 confirmed records/reports for discussion and future review tools.
+- Write only `data/training-plans/`.
+- Never modify the profile, body logs, diet data, or actual workout records.
+- Do not add `training_split` or detailed-plan fields to Module 2.
+
+## Proposal semantics
+
+Every generated plan has `status: proposed` and unconfirmed metadata. The agent must
+discuss it with the user. Only `plan_manager.py confirm ... --confirmed` changes that
+plan file to `confirmed`; this still does not claim any workout happened. Every day
+continues to carry `user_confirmation_required: true`.
+
+If no split is requested, the generator recommends `full-body`, `ppl`, or
+`upper-lower` from weekly strength frequency and labels the recommendation. The user
+may choose another supported split without changing the profile schema.
+
+All scheduling and set-reduction arithmetic is performed by Python.
+
+## Files
 
 ```text
 skills/training-planning/
 ├── SKILL.md
-├── modules/training-plan-management.md
-├── scripts/generate_plan.py
-└── references/training-plan.template.json
+├── modules/
+│   ├── deload-plan.md
+│   └── training-plan-management.md
+├── references/training-plan.template.json
+└── scripts/
+    ├── generate_deload.py
+    ├── generate_plan.py
+    └── plan_manager.py
 ```
-
-## Data ownership
-
-- Read `data/user/profile.json` for goal, target weight, timezone, strength-day and
-  cardio metadata.
-- Write only `data/training-plans/`.
-- Never modify `data/user/profile.json`, `data/user/body-log/`, `data/diet/`, or
-  `data/training/`.
-- A generated plan is a proposal. It never proves that a workout occurred and never
-  replaces the daily training confirmation required by Diet Tracker/Training Analyzer.
-
-## Routing
-
-| User intent | Read |
-|---|---|
-| “create a training plan”, “new program” | `modules/training-plan-management.md` |
-| “change my split”, “PPL or upper/lower” | `modules/training-plan-management.md` |
-
-## Generic behavior
-
-The generator accepts a requested split. If none is provided, it recommends a split
-from the profile's weekly strength frequency and clearly marks that recommendation.
-If the user does not know the split, explain the options and work it out with them;
-do not write the profile to remember the split.
-
-Use `scripts/generate_plan.py` for scheduling and file writes. Use `read_file` to
-present a formatted plan rather than dumping raw JSON.

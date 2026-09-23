@@ -271,12 +271,16 @@ def generate_plan(
     strength_positions = set(spread_positions(strength_days))
     cardio_positions = set(spread_positions(cardio_days))
     schedule: List[Dict[str, Any]] = []
+    strength_session_index = 0
     for offset in range(days):
         current = start + timedelta(days=offset)
         weekly_position = offset % 7
         strength = None
         if weekly_position in strength_positions and strength_days:
-            strength = _copy_session(sessions[(offset // 7 * strength_days + len([x for x in schedule if x["strength"] is not None])) % len(sessions)])
+            strength = _copy_session(
+                sessions[strength_session_index % len(sessions)]
+            )
+            strength_session_index += 1
         cardio = None
         if weekly_position in cardio_positions and cardio_days:
             cardio = {
@@ -299,7 +303,13 @@ def generate_plan(
         "schema_version": "1.0",
         "id": f"{start.isoformat()}-{days}-day-plan",
         "title": f"{days}-day training plan",
+        "plan_type": "standard",
         "status": "proposed",
+        "confirmation": {
+            "confirmed": False,
+            "source": None,
+            "confirmed_at": None,
+        },
         "generated_at": datetime.now(ZoneInfo(tz)).isoformat(timespec="seconds"),
         "timezone": tz,
         "start_date": start.isoformat(),

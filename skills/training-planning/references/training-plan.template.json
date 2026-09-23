@@ -2,8 +2,14 @@
   "schema_version": "1.0",
   "id": "YYYY-MM-DD-N-day-plan",
   "title": "N-day training plan",
+  "plan_type": "standard",
   "status": "proposed",
-  "generated_at": "ISO-8601 timestamp",
+  "confirmation": {
+    "confirmed": false,
+    "source": null,
+    "confirmed_at": null
+  },
+  "generated_at": "YYYY-MM-DDTHH:MM:SS+00:00",
   "timezone": "IANA/Timezone",
   "start_date": "YYYY-MM-DD",
   "end_date": "YYYY-MM-DD",
