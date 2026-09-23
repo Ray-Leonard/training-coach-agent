@@ -2,6 +2,8 @@
   "schema_version": "1.1",
   "date": "YYYY-MM-DD",
   "timezone": "IANA/Timezone",
+  "source": "local",
+  "xunji": null,
   "training_status": null,
   "training_status_confirmed": false,
   "training_confirmation_source": null,

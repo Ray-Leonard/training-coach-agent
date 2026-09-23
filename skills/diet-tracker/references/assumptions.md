@@ -15,13 +15,21 @@ nutrition values before a write. Module 1 records may be used as known sources.
 - No meal entries means missing intake, not zero intake.
 - An unanswered training/rest question keeps the daily result pending.
 
-## Optional Xunji/Synfit fallback
+## Xunji/Synfit integration boundary
 
-No diet sync client is shipped because this repository does not pin a public,
-versioned endpoint and response schema. Manual entry therefore remains available
-without credentials or network access.
+The official Xunji diet API is the preferred source of truth when the user enables
+Xunji mode. The live client is `scripts/sync_diet_data.py`, and its contract is in
+`references/synfit-food-api.md`.
 
-If a verified client is added later, it must read only `XUNJI_DIET_API_KEY`, never
-print or persist that value, use bounded pagination and conservative field parsing,
-show a local diff, and require explicit confirmation before an atomic merge into
-`data/diet/`. Tests must replace the network boundary and must never make live calls.
+- `SYNFIT_DIET_DATA_API_KEY` authenticates diet-record query, write-back, custom-food,
+  and template endpoints.
+- `SYNFIT_FOOD_SEARCH_API_KEY` authenticates the separate official-food search
+  endpoint. A diet key must not be reused for search.
+- Query responses are cached losslessly under `data/diet/xunji/`; the existing
+  `data/diet/YYYY-MM-DD.json` shape is a derived local projection used by the coach
+  calculations.
+- Remote writes show a diff-like summary and require explicit user confirmation.
+- The client preserves `uniquekey`, `ntr`, unit metadata, IDs, and unknown raw fields;
+  it rejects partial food records rather than guessing missing nutrition.
+- Tests replace the HTTP boundary and do not make live calls. Manual local logging
+  remains an offline fallback, but it is not merged into Xunji silently.

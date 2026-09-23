@@ -9,7 +9,7 @@ python3 skills/training-analyzer/scripts/workout_log.py create \
 
 This repository does not ship a live sync client because it does not pin a public,
 versioned endpoint and response schema. A future reviewed client may use only the
-environment variable `XUNJI_TRAINING_API_KEY`; it must never print, serialize, or
+environment variable `SYNFIT_TRAINING_DATA_API_KEY`; it must never print, serialize, or
 include that value in an exception.
 
 Any future `sync_training_data.py` must:

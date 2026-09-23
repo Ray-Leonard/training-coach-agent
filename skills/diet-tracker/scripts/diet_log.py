@@ -42,6 +42,8 @@ DAY_FIELDS = {
     "schema_version",
     "date",
     "timezone",
+    "source",
+    "xunji",
     "training_status",
     "training_status_confirmed",
     "training_confirmation_source",
@@ -78,6 +80,8 @@ def _default_day(date_str: str, profile: Dict[str, Any]) -> Dict[str, Any]:
         "schema_version": "1.1",
         "date": parse_iso_date(date_str),
         "timezone": profile_timezone(profile),
+        "source": "local",
+        "xunji": None,
         "training_status": None,
         "training_status_confirmed": False,
         "training_confirmation_source": None,
@@ -144,6 +148,14 @@ def validate_day(
     profile_timezone({"timezone": timezone})
     if expected_timezone is not None and timezone != expected_timezone:
         raise ValueError("daily diet record timezone does not match profile.timezone")
+    source = day.get("source", "local")
+    if not isinstance(source, str) or not source.strip():
+        raise ValueError("source must be a non-empty string")
+    day["source"] = source
+    xunji = day.get("xunji")
+    if xunji is not None and not isinstance(xunji, dict):
+        raise ValueError("xunji must be an object when present")
+    day.setdefault("xunji", None)
     status = day.get("training_status")
     confirmed = day.get("training_status_confirmed")
     if status is not None and status not in VALID_TRAINING_STATUSES:
@@ -452,6 +464,10 @@ def summarize_day(date_str: str, *, root: Optional[Path] = None) -> Dict[str, An
         }
     targets = _nutrition_targets(profile)
     pending: List[str] = []
+    xunji_meta = day.get("xunji") or {}
+    pending_foods = xunji_meta.get("pending_foods", []) if isinstance(xunji_meta, dict) else []
+    if pending_foods:
+        pending.append("xunji_nutrition_conversion")
     if not day["training_status_confirmed"]:
         pending.append("training_confirmation")
     if not day["meals"]:
@@ -481,6 +497,7 @@ def summarize_day(date_str: str, *, root: Optional[Path] = None) -> Dict[str, An
         "training_status": day["training_status"],
         "training_status_confirmed": day["training_status_confirmed"],
         "meal_count": len(day["meals"]),
+        "pending_food_count": len(pending_foods),
         "intake": totals,
         "target": targets,
         "progress": _macro_progress(totals, targets),

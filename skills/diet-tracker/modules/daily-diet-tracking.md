@@ -3,19 +3,26 @@
 ## Required conversation flow
 
 1. Read `data/user/profile.json` for timezone and nutrition targets.
-2. Accept a user-confirmed meal from manual text, a reviewed image extraction, or a
-   known Module 1 nutrition record. Unknown numbers remain unknown; ask instead of
-   guessing.
-3. Log the meal. A meal may be saved before daily training status is known.
-4. For every daily check-in, explicitly ask whether today is `training` or `rest`.
+2. In Xunji mode, query and mirror the explicit date range before building the local
+   projection. Unknown units or nutrition fields remain pending; never guess.
+3. For an offline/manual fallback, accept a user-confirmed meal from manual text, a
+   reviewed image extraction, or a known Module 1 nutrition record.
+4. A meal may be saved before daily training status is known.
+5. For every daily check-in, explicitly ask whether today is `training` or `rest`.
    Do not infer. If the answer is unknown, leave it unknown and report pending.
-5. Run the calculation entry point and present its values without recalculating.
+6. Run the calculation entry point and present its values without recalculating.
 
 ## Storage
 
 One atomic JSON file per local date:
 
 `data/diet/YYYY-MM-DD.json`
+
+When Xunji mode is enabled, `scripts/sync_diet_data.py` also stores a lossless
+source mirror at `data/diet/xunji/YYYY-MM-DD.json`. The daily file is then a derived
+coach projection: its `meals` use `source: "xunji_api"`, while training status,
+expenditure, and notes remain coach-owned fields. Do not treat the projection as a
+second independent food database.
 
 The stable shape is in `../references/daily-diet.template.json`. A meal includes an
 ID, meal name, food name and item list, calories, protein, carbs, fat, source, and an
