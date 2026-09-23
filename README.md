@@ -1,8 +1,10 @@
 # Training Coach Agent: 老铁 Old-Iron
 
-An open-source AI fitness coach system. Give your AI agent this repo and it becomes your personal trainer — tracking your diet, analyzing workouts, planning training cycles, and keeping you accountable.
+An open-source, modular AI fitness coach system. Point an AI agent at this repo and
+it can maintain nutrition data, manage a profile, track daily diet, and generate a
+profile-driven training-plan proposal while preserving strict module sandboxes.
 
-> **If you're an AI agent reading this:** Go read [SETUP.md](SETUP.md) first. That's your onboarding guide.
+> **AI agent onboarding:** Read [SETUP.md](SETUP.md) and then [AGENTS.md](AGENTS.md).
 
 [中文版 (Chinese)](README.zh-CN.md)
 
@@ -11,29 +13,38 @@ An open-source AI fitness coach system. Give your AI agent this repo and it beco
 ## Modules
 
 | # | Module | Status | What it does |
-|---|--------|--------|-------------|
-| 1 | **Nutrition Database Management** | ✅ Done | Maintain your personal food database. Add foods from nutrition labels (OCR) or web search. Organize by whole foods vs. processed foods. Manage meal templates. |
-| 2 | **User Profile Management** | ✅ Done | Body measurements, weight/BF tracking, Xunji API sync. Goal setup (weight or BF%). Auto-calculate TDEE, macros, and timeline. Activity multiplier derived from training schedule. |
-| 3 | **Diet Tracker** | 📋 Planned | Log daily meals, calculate macros and micronutrients, compare against your goals. Supports manual entry and 训记 (Xunji) app sync. |
-| 4 | **Training Analyzer** | 📋 Planned | Record workouts and track progress across exercises. Detect PRs, analyze volume trends, generate per-session reports. 训记 sync supported. |
-| 5 | **Training Planning** | 📋 Planned | Design and adjust training programs (5×5, PPL, Ivysaur, etc.) based on your history and goals. Includes deload week planning. |
-| 6 | **Monthly Summary** | 📋 Planned | Auto-generate monthly reports: training frequency, volume changes, diet compliance, weight trends. |
-| 7 | **Proactive Reminder** | 📋 Planned | Cron-based check-ins: "Did you eat today?", "It's leg day — here's your plan." |
+|---|---|---|---|
+| 1 | **Nutrition Database Management** | ✅ Complete | Maintains personal food and meal-template data from labels or web research. |
+| 2 | **User Profile Management** | ✅ Complete | Manages body data, goals, macros, TDEE, and high-level weekly training/cardio metadata. |
+| 3 | **Diet Tracker** | 🧪 MVP usable | Logs daily meals, calculates deterministic totals and estimated/manual deficit, and runs configurable multi-day diet camps. |
+| 4 | **Training Analyzer** | 📋 Planned | Records actual workouts, detects PRs, and analyzes progression. |
+| 5 | **Training Planning** | 🧪 MVP usable | Generates a proposed detailed split and schedule in its own sandbox without modifying the profile. |
+| 6 | **Monthly Summary** | 📋 Planned | Aggregates training, diet, body, and goal trends into monthly reports. |
+| 7 | **Proactive Reminder** | 📋 Planned | Provides timezone-aware, non-intrusive check-ins and reminders. |
+
+The MVP intentionally distinguishes **planned** training from **confirmed actual**
+training. Daily tracking must ask the user whether they trained; it never infers
+that from a calendar or a generated plan.
 
 ---
 
 ## Quick Start
 
-1. Clone this repo
-2. Copy `.env.example` to `.env` and fill in your keys (optional — 训记/Xunji integration)
-3. Tell your AI agent: "Read SETUP.md and get started"
+1. Clone this repo.
+2. Copy `.env.example` to `.env` and fill optional integration keys yourself.
+3. Tell your AI agent: `Read SETUP.md and get started`.
+4. For a plan proposal, load `skills/training-planning/SKILL.md`.
+5. For meals or a deficit camp, load `skills/diet-tracker/SKILL.md`.
 
-Your personal data lives in `data/` — it's git-ignored. Only directory structure is tracked.
+User data lives under `data/` and is git-ignored. Only directory markers are tracked.
+Each module writes only to its own data sandbox; see [AGENTS.md](AGENTS.md).
 
 ---
 
 ## Coach Persona
 
-The coach is **老铁 Old-Iron** — a strict but caring Chinese-speaking gym veteran. Persona defined in [`coach-agent-profile/SOUL.md`](coach-agent-profile/SOUL.md).
+The coach is **老铁 Old-Iron** — a strict but caring Chinese-speaking gym veteran.
+The persona and safety boundaries are defined in
+[`coach-agent-profile/SOUL.md`](coach-agent-profile/SOUL.md).
 
 ---

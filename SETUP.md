@@ -2,69 +2,63 @@
 
 > ⚠️ **WORK IN PROGRESS — NOT READY FOR DEPLOYMENT**
 >
-> The Training Coach Agent is under active development. Only **Module 1 (Nutrition Database Management)** is complete. Modules 2–7 are stubs. Setup instructions will be finalized as more modules become functional.
->
-> **Watch this repo** to get notified when setup goes live. PRs and contributions welcome.
+> The Training Coach Agent is under active development. Modules 1 and 2 are the
+> established profile/nutrition foundation; Modules 3 and 5 now have a usable MVP,
+> but the complete system is not production-ready. Continue to watch this repo for
+> changes before deploying it for unattended use.
 
 ---
 
-## What This Repo Will Be
+## What This Repo Is
 
-A modular AI fitness coach system. When complete, any AI agent pointed at this repo will be able to:
+A modular AI fitness coach. The agent loads only the skill needed for the current
+request, reads the owning module's data sandbox, performs calculations through that
+skill's scripts, and presents a concise result.
 
-- Maintain a personal food nutrition database
-- Track daily diet and compare against macro goals
-- Record and analyze workouts across exercises
-- Generate and adjust training programs
-- Produce monthly progress reports
-- Send proactive reminders
+Read these in order:
 
-You load skills from `skills/`, read/write user data from `data/`, and pull reference knowledge from `knowledge/`.
-
----
+1. `coach-agent-profile/SOUL.md` — persona and safety boundaries.
+2. `AGENTS.md` — intent routing, ownership, and data contracts.
+3. The selected `skills/<name>/SKILL.md` — the module workflow.
 
 ## Current Status
 
 | Module | Status |
-|--------|--------|
-| Nutrition Database Management | ✅ Complete — ready to use |
-| User Profile Management | 📋 Planned — stub only |
-| Diet Tracker | 📋 Planned — stub only |
-| Training Analyzer | 📋 Planned — stub only |
-| Training Planning | 📋 Planned — stub only |
-| Monthly Summary | 📋 Planned — stub only |
-| Proactive Reminder | 📋 Planned — stub only |
+|---|---|
+| Nutrition Database Management | ✅ Complete |
+| User Profile Management | ✅ Complete |
+| Diet Tracker | 🧪 MVP usable — daily meals and configurable deficit camps |
+| Training Analyzer | 📋 Planned |
+| Training Planning | 🧪 MVP usable — proposed plans only |
+| Monthly Summary | 📋 Planned |
+| Proactive Reminder | 📋 Planned |
 
----
+## MVP examples
 
-## Planned Setup (Preview)
+Generate a proposed 10-day plan. This reads the profile and writes only to
+`data/training-plans/`:
 
-Once ready, setup will support two modes:
-
-### Hermes Mode
 ```bash
-hermes profile create coach --clone
-cp coach-agent-profile/SOUL.md ~/.hermes/profiles/coach/
-# Configure external_dirs + cwd in ~/.hermes/profiles/coach/config.yaml
+python3 skills/training-planning/scripts/generate_plan.py generate \
+  --start 2026-09-23 --days 10 --split upper-lower
 ```
 
-### Generic Mode (any AI agent)
+Start a configurable deficit camp. The Task #449 example is 10 days at 700 kcal/day;
+the target is an explicit parameter, not a code-level assumption:
+
 ```bash
-# 1. Set working directory to this repo root
-# 2. Read AGENTS.md for routing instructions
-# 3. Load skills from skills/ as needed
+python3 skills/diet-tracker/scripts/cut_camp.py init \
+  --start 2026-09-23 --days 10 --target-deficit 700 \
+  --slug 2026-09-23-10-day-cut
 ```
 
----
+## Safety and privacy rules
 
-## Data Directory
-
-The `data/` directory is **git-ignored**. Only the directory skeleton is tracked (via `.gitkeep` files). Each user populates their own data.
-
----
-
-## Stay Updated
-
-- ⭐ Star the repo
-- 👀 Watch for releases
-- 🤝 Contributions welcome — see open issues
+- `data/` contains personal data and is ignored by Git. Do not stage it.
+- Never put API keys, passwords, tokens, or `.env` contents in chat, files, or task
+  comments.
+- Never infer that the user trained. Daily tracking asks for explicit `training` or
+  `rest`; unknown remains pending.
+- A generated training schedule is a proposal, not an actual workout record.
+- Every module owns its own sandbox and must not write another module's data.
+- This MVP is not medical advice and must not be used to manage injury or disease.
