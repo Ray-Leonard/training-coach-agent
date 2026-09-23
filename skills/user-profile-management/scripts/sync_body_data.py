@@ -168,30 +168,40 @@ def _validate_iso_date(value: str, field: str) -> str:
 def query_body_data(
     start_date: str, end_date: str, types: Optional[List[str]] = None
 ) -> List[Dict[str, Any]]:
-    """Query Xunji and return its parsed records array."""
+    """Query all Xunji records, following offset pagination safely."""
     start = _validate_iso_date(start_date, "start_date")
     end = _validate_iso_date(end_date, "end_date")
     if start > end:
         raise ValueError("start_date cannot be after end_date")
-    payload: Dict[str, Any] = {
-        "start_date": start,
-        "end_date": end,
-        "include_latest": True,
-        "include_records": True,
-        "limit": 1000,
-        "offset": 0,
-    }
-    if types:
-        payload["types"] = list(types)
-    response = _post(QUERY_ENDPOINT, payload)
-    if isinstance(response, list):
-        return response
-    if not isinstance(response, dict):
-        return []
-    res = response.get("res") or response.get("data") or response
-    if isinstance(res, dict) and isinstance(res.get("records"), list):
-        return res["records"]
-    return []
+    limit = 1000
+    offset = 0
+    all_records: List[Dict[str, Any]] = []
+    for _page in range(100):
+        payload: Dict[str, Any] = {
+            "start_date": start,
+            "end_date": end,
+            "include_latest": True,
+            "include_records": True,
+            "limit": limit,
+            "offset": offset,
+        }
+        if types:
+            payload["types"] = list(types)
+        response = _post(QUERY_ENDPOINT, payload)
+        if isinstance(response, list):
+            page_records = response
+        elif isinstance(response, dict):
+            res = response.get("res") or response.get("data") or response
+            page_records = res.get("records", []) if isinstance(res, dict) else []
+        else:
+            page_records = []
+        if not isinstance(page_records, list):
+            page_records = []
+        all_records.extend(record for record in page_records if isinstance(record, dict))
+        if len(page_records) < limit:
+            return all_records
+        offset += len(page_records)
+    raise XunjiAPIError("Xunji pagination exceeded the safe 100-page limit")
 
 
 def _normalize_api_record(record: Dict[str, Any]) -> Dict[str, Any]:
@@ -266,7 +276,7 @@ def save_body_log(records: Iterable[Dict[str, Any]], month: str) -> Path:
         r.pop("label", None)
         r.pop("label_en", None)
         if not r.get("source"):
-            r["source"] = "xunji_api" if r.get("id") is not None else "xunji_api"
+            r["source"] = "xunji_api" if r.get("id") is not None else "manual"
         if r.get("id") is not None and not r.get("xunji_id"):
             r["xunji_id"] = r["id"]
         r.pop("id", None)
@@ -289,6 +299,22 @@ def save_body_log(records: Iterable[Dict[str, Any]], month: str) -> Path:
     return destination
 
 
+def load_local_body_records() -> List[Dict[str, Any]]:
+    """Load every local monthly record without contacting Xunji."""
+    records: List[Dict[str, Any]] = []
+    if not BODY_LOG_DIR.is_dir():
+        return records
+    for path in sorted(BODY_LOG_DIR.glob("????-??.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError(f"local body-log file is unreadable: {path}") from exc
+        if not isinstance(payload, list):
+            raise ValueError(f"local body-log file must contain an array: {path}")
+        records.extend(record for record in payload if isinstance(record, dict))
+    return records
+
+
 __all__ = [
     "XunjiAPIError",
     "get_api_key",
@@ -296,6 +322,7 @@ __all__ = [
     "merge_body_logs",
     "upsert_body_data",
     "save_body_log",
+    "load_local_body_records",
 ]
 
 
@@ -326,7 +353,7 @@ if __name__ == "__main__":
 
     elif args.cmd == "sync":
         records = query_body_data(args.start, args.end)
-        merged = merge_body_logs(records, [])
+        merged = merge_body_logs(records, load_local_body_records())
         by_month: dict[str, list] = {}
         for r in merged:
             d = r.get("date", "")

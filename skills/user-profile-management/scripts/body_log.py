@@ -1,188 +1,268 @@
 #!/usr/bin/env python3
-"""Manual body-log CRUD — log, delete, list, and save monthly body measurement files."""
+"""Validated manual body-log CRUD with monthly atomic JSON files."""
 
 from __future__ import annotations
 
 import json
-from datetime import date
+import math
+import tempfile
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 BODY_LOG_DIR = REPO_ROOT / "data" / "user" / "body-log"
 
+TYPE_UNITS = {
+    "weight": "kg",
+    "bodyfat": "%",
+    "neck": "cm",
+    "chest": "cm",
+    "weist": "cm",
+    "shoulder": "cm",
+    "bot": "cm",
+    "arm_left": "cm",
+    "arm_right": "cm",
+    "forearm_left": "cm",
+    "forearm_right": "cm",
+    "leg_left": "cm",
+    "leg_right": "cm",
+    "cav_left": "cm",
+    "cav_right": "cm",
+}
+
 
 def _today_in_tz(tz_name: str) -> date:
-    """Return today's date in the given IANA timezone (e.g., 'Asia/Shanghai')."""
-    from datetime import datetime
-    from zoneinfo import ZoneInfo
-    return datetime.now(ZoneInfo(tz_name)).date()
+    try:
+        return datetime.now(ZoneInfo(tz_name)).date()
+    except ZoneInfoNotFoundError as exc:
+        raise ValueError(f"Unknown IANA timezone: {tz_name}") from exc
 
 
 def _read_profile_timezone() -> str:
-    """Read timezone from data/user/profile.json. Returns 'UTC' on failure."""
     profile_path = REPO_ROOT / "data" / "user" / "profile.json"
+    if not profile_path.is_file():
+        return "UTC"
     try:
         raw = json.loads(profile_path.read_text(encoding="utf-8"))
-        tz = raw.get("timezone")
-        if tz and isinstance(tz, str):
-            return tz
-    except Exception:
+        timezone = raw.get("timezone")
+        if isinstance(timezone, str) and timezone.strip():
+            return timezone
+    except (OSError, json.JSONDecodeError):
         pass
     return "UTC"
 
 
+def _parse_date(value: Any, field: str = "date") -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"{field} must use YYYY-MM-DD format")
+    try:
+        return date.fromisoformat(value).isoformat()
+    except ValueError as exc:
+        raise ValueError(f"{field} must use YYYY-MM-DD format") from exc
+
+
+def _validate_number(value: Any, field: str) -> float:
+    if isinstance(value, bool):
+        raise ValueError(f"{field} must be numeric")
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{field} must be numeric") from exc
+    if not math.isfinite(number) or number <= 0:
+        raise ValueError(f"{field} must be finite and positive")
+    return number
+
+
+def validate_entry(record: Dict[str, Any]) -> Dict[str, Any]:
+    if not isinstance(record, dict):
+        raise ValueError("body-log entry must be a JSON object")
+    entry_date = _parse_date(record.get("date") or record.get("datestr"))
+    entry_type = record.get("type")
+    if entry_type not in TYPE_UNITS:
+        raise ValueError(f"unsupported body-data type: {entry_type}")
+    unit = record.get("unit")
+    expected_unit = TYPE_UNITS[entry_type]
+    if unit != expected_unit:
+        raise ValueError(f"{entry_type} requires unit {expected_unit!r}")
+    value = _validate_number(record.get("value"), "value")
+    if entry_type == "bodyfat" and value > 100:
+        raise ValueError("bodyfat must be between 0 and 100 percent")
+    if entry_type != "bodyfat" and value > 1000:
+        raise ValueError("body measurement is outside the supported range")
+    source = record.get("source") or "manual"
+    if not isinstance(source, str) or not source.strip():
+        raise ValueError("source must be a non-empty string")
+    xunji_id = record.get("xunji_id")
+    return {
+        "date": entry_date,
+        "type": entry_type,
+        "value": round(value, 4),
+        "unit": unit,
+        "source": source.strip(),
+        "xunji_id": xunji_id,
+    }
+
+
+def _month_from_date(date_str: str) -> str:
+    normalized = _parse_date(date_str)
+    return normalized[:7]
+
+
+def _validate_month(month: str) -> str:
+    if not isinstance(month, str):
+        raise ValueError("month must use YYYY-MM format")
+    try:
+        return date.fromisoformat(f"{month}-01").strftime("%Y-%m")
+    except ValueError as exc:
+        raise ValueError("month must use YYYY-MM format") from exc
+
+
 def _load_month(month: str) -> List[Dict[str, Any]]:
-    """Load records for a given YYYY-MM month. Returns empty list if missing."""
-    month_path = BODY_LOG_DIR / f"{month}.json"
-    if month_path.is_file():
-        try:
-            return json.loads(month_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            pass
-    return []
+    normalized_month = _validate_month(month)
+    month_path = BODY_LOG_DIR / f"{normalized_month}.json"
+    if not month_path.is_file():
+        return []
+    try:
+        payload = json.loads(month_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Body-log file is corrupted: {month_path}") from exc
+    if not isinstance(payload, list):
+        raise ValueError(f"Body-log file must contain a JSON array: {month_path}")
+    records = [validate_entry(record) for record in payload]
+    if any(record["date"][:7] != normalized_month for record in records):
+        raise ValueError(f"Body-log file contains a record from another month: {month_path}")
+    return records
 
 
 def _save_month(records: List[Dict[str, Any]], month: str) -> Path:
-    """Write one month of strict JSON body-log data atomically, sorted by date."""
-    _FIELD_ORDER = ["date", "type", "value", "unit", "source", "xunji_id"]
-    records = [{k: r.get(k) for k in _FIELD_ORDER if k in r} for r in records]
-    records.sort(key=lambda r: (r.get("date", ""), r.get("type", "")), reverse=True)
+    normalized_month = _validate_month(month)
+    canonical = [validate_entry(record) for record in records]
+    if any(record["date"][:7] != normalized_month for record in canonical):
+        raise ValueError("cannot write a record to the wrong monthly file")
+    canonical.sort(key=lambda record: (record["date"], record["type"]), reverse=True)
     BODY_LOG_DIR.mkdir(parents=True, exist_ok=True)
-    destination = BODY_LOG_DIR / f"{month}.json"
-    temporary = destination.with_suffix(".json.tmp")
-    temporary.write_text(
-        json.dumps(records, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    destination = BODY_LOG_DIR / f"{normalized_month}.json"
+    fd, temporary_name = tempfile.mkstemp(
+        prefix=f".{destination.name}.", suffix=".tmp", dir=str(BODY_LOG_DIR)
     )
-    temporary.replace(destination)
+    temporary = Path(temporary_name)
+    try:
+        with open(fd, "w", encoding="utf-8", closefd=True) as handle:
+            json.dump(canonical, handle, ensure_ascii=False, indent=2)
+            handle.write("\n")
+            handle.flush()
+        temporary.replace(destination)
+    except Exception:
+        temporary.unlink(missing_ok=True)
+        raise
     return destination
-
-
-# ── Public API ──────────────────────────────────────────────────────────────
 
 
 def log_entry(
     entry_type: str, value: float, unit: str, *, date_str: Optional[str] = None
 ) -> Path:
-    """Add or update a manual body measurement.
-
-    Replaces an existing manual entry with the same (date, type) or appends.
-    Returns the written file path.
-    """
-    entry_date = date_str or _today_in_tz(_read_profile_timezone()).isoformat()
+    """Add or replace a manual entry with the same (date, type)."""
+    entry_date = _parse_date(date_str or _today_in_tz(_read_profile_timezone()).isoformat())
+    entry = validate_entry(
+        {
+            "date": entry_date,
+            "type": entry_type,
+            "value": value,
+            "unit": unit,
+            "source": "manual",
+            "xunji_id": None,
+        }
+    )
     month = entry_date[:7]
-    entry: Dict[str, Any] = {
-        "date": entry_date,
-        "type": entry_type,
-        "value": value,
-        "unit": unit,
-        "source": "manual",
-        "xunji_id": None,
-    }
-
     records = _load_month(month)
     replaced = False
-    for i, record in enumerate(records):
-        r_date = record.get("date") or record.get("datestr")
+    for index, record in enumerate(records):
         if (
-            r_date == entry_date
-            and record.get("type") == entry_type
+            record["date"] == entry_date
+            and record["type"] == entry_type
             and record.get("source") == "manual"
         ):
-            records[i] = entry
+            records[index] = entry
             replaced = True
             break
     if not replaced:
         records.append(entry)
-
     return _save_month(records, month)
 
 
 def delete_entry(date_str: str, entry_type: str) -> int:
-    """Delete all manual entries matching (date, type). Returns count deleted."""
-    month = date_str[:7]
+    entry_date = _parse_date(date_str)
+    if entry_type not in TYPE_UNITS:
+        raise ValueError(f"unsupported body-data type: {entry_type}")
+    month = entry_date[:7]
     records = _load_month(month)
-    before = len(records)
-    records = [
-        r
-        for r in records
+    kept = [
+        record
+        for record in records
         if not (
-            (r.get("date") or r.get("datestr")) == date_str
-            and r.get("type") == entry_type
-            and r.get("source") == "manual"
+            record["date"] == entry_date
+            and record["type"] == entry_type
+            and record.get("source") == "manual"
         )
     ]
-    if len(records) < before:
-        _save_month(records, month)
-    return before - len(records)
+    deleted = len(records) - len(kept)
+    if deleted:
+        _save_month(kept, month)
+    return deleted
 
 
 def list_entries(
     month: Optional[str] = None,
     entry_type: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
-    """List body-log entries, optionally filtered by month or type.
-
-    If month is None, lists all months. Returns date-ascending sorted records.
-    """
+    if entry_type is not None and entry_type not in TYPE_UNITS:
+        raise ValueError(f"unsupported body-data type: {entry_type}")
     if month:
         records = _load_month(month)
-        if entry_type:
-            records = [r for r in records if r.get("type") == entry_type]
-        records.sort(key=lambda r: (r.get("date") or r.get("datestr", ""), r.get("type", "")), reverse=True)
-        return records
-
+        return [r for r in records if entry_type is None or r["type"] == entry_type]
     all_records: List[Dict[str, Any]] = []
     if BODY_LOG_DIR.is_dir():
-        for f in sorted(BODY_LOG_DIR.glob("*.json")):
-            try:
-                month_records = json.loads(f.read_text(encoding="utf-8"))
-                if entry_type:
-                    month_records = [
-                        r for r in month_records if r.get("type") == entry_type
-                    ]
-                all_records.extend(month_records)
-            except (json.JSONDecodeError, OSError):
-                pass
-    all_records.sort(key=lambda r: (r.get("date") or r.get("datestr", ""), r.get("type", "")), reverse=True)
+        for path in sorted(BODY_LOG_DIR.glob("????-??.json")):
+            records = _load_month(path.stem)
+            all_records.extend(
+                record for record in records if entry_type is None or record["type"] == entry_type
+            )
+    all_records.sort(key=lambda record: (record["date"], record["type"]), reverse=True)
     return all_records
 
 
-__all__ = ["log_entry", "delete_entry", "list_entries"]
+__all__ = ["TYPE_UNITS", "validate_entry", "log_entry", "delete_entry", "list_entries"]
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
+    import argparse
     import sys
 
-    if len(sys.argv) < 2:
-        print("Usage: body_log.py <log|delete|list> [args...]", file=sys.stderr)
-        sys.exit(1)
-
-    cmd = sys.argv[1]
-
-    if cmd == "log":
-        if len(sys.argv) < 5:
-            print("Usage: body_log.py log <type> <value> <unit> [date]", file=sys.stderr)
-            sys.exit(1)
-        entry_type, value, unit = sys.argv[2], float(sys.argv[3]), sys.argv[4]
-        date_str = sys.argv[5] if len(sys.argv) > 5 else None
-        path = log_entry(entry_type, value, unit, date_str=date_str)
-        print(f"✅ Logged {entry_type} {value} {unit} to {path}")
-
-    elif cmd == "delete":
-        if len(sys.argv) < 4:
-            print("Usage: body_log.py delete <date> <type>", file=sys.stderr)
-            sys.exit(1)
-        d, t = sys.argv[2], sys.argv[3]
-        n = delete_entry(d, t)
-        print(f"✅ Deleted {n} manual {t} entries on {d}")
-
-    elif cmd == "list":
-        month = sys.argv[2] if len(sys.argv) > 2 else None
-        entry_type = sys.argv[3] if len(sys.argv) > 3 else None
-        records = list_entries(month=month, entry_type=entry_type)
-        print(json.dumps(records, ensure_ascii=False, indent=2))
-
-    else:
-        print(f"Unknown command: {cmd}", file=sys.stderr)
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Validated manual body-log CRUD")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+    log = sub.add_parser("log")
+    log.add_argument("type")
+    log.add_argument("value", type=float)
+    log.add_argument("unit")
+    log.add_argument("date", nargs="?")
+    delete = sub.add_parser("delete")
+    delete.add_argument("date")
+    delete.add_argument("type")
+    listing = sub.add_parser("list")
+    listing.add_argument("month", nargs="?")
+    listing.add_argument("type", nargs="?")
+    args = parser.parse_args()
+    try:
+        if args.cmd == "log":
+            path = log_entry(args.type, args.value, args.unit, date_str=args.date)
+            print(f"Logged {args.type} to {path}")
+        elif args.cmd == "delete":
+            print(f"Deleted {delete_entry(args.date, args.type)} entries")
+        else:
+            print(json.dumps(list_entries(args.month, args.type), ensure_ascii=False, indent=2))
+    except (ValueError, OSError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        raise SystemExit(2)

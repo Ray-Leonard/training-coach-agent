@@ -40,7 +40,7 @@ user-profile-management/
 | "sync body data", "拉训记数据", "sync from Xunji" | `modules/body-data-management.md` (sync) |
 | "set my goals", "我想增肌/减脂到 X kg", "new goal" | `modules/profile-management.md` (setup) |
 | "update macros", "calculate TDEE", "算一下每日消耗" | `modules/profile-management.md` (recalculate) |
-| "what's my plan", "我的训练 split", "show profile" | `modules/profile-management.md` (view) |
+| "what's my plan", "weekly training settings", "show profile" | `modules/profile-management.md` (view) |
 | "onboarding", "get started", "setup profile" | `modules/profile-management.md` (onboarding) |
 
 ## Critical: First-Run Detection & Onboarding
