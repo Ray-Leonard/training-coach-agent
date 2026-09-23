@@ -52,7 +52,7 @@ For a one-shot onboarding check:
 
 ```bash
 hermes --in "$REPO_DIR" \
-  -z "Read SETUP.md, AGENTS.md, and the repository's coach-agent-profile/SOUL.md template; report the available modules without reading personal data."
+  -z "Read SETUP.md, AGENTS.md, and the repository's read-only coach-agent-profile/SOUL.example.md; report the available modules without reading personal data."
 ```
 
 `hermes profile use trainingcoach` makes the selection sticky. Use
@@ -62,30 +62,32 @@ credentials in Hermes; do not copy them into this repository.
 ## Read order
 
 1. The active agent/profile's primary `SOUL.md` — persona, selected language, and
-   safety boundaries. The repository's `coach-agent-profile/SOUL.md` is the canonical
-   English template; localized files in the repository are examples only.
+   safety boundaries. The repository's `coach-agent-profile/SOUL.example.md` is a
+   **read-only canonical English example**, not the runtime Soul. The localized
+   `coach-agent-profile/SOUL.zh-CN.example.md` is also a read-only example.
 2. `AGENTS.md` — intent routing, ownership, confirmation, and data contracts.
 3. The one `skills/<name>/SKILL.md` selected for the current request.
 
 ## Choose Old-Iron's communication language
 
 As part of user-profile onboarding, ask the user which language Old-Iron should use
-for normal communication. English and Simplified Chinese have repository examples;
-other languages may be selected and translated from the complete canonical
-`coach-agent-profile/SOUL.md`.
+for normal communication. English and Simplified Chinese have read-only repository
+examples (`SOUL.example.md` and `SOUL.zh-CN.example.md`); other languages may be
+selected and translated from the complete canonical English example.
 
-After the user confirms the choice, install the complete localized Soul into the
-active agent/profile's primary Soul location. For a Hermes named profile, use:
+After the user confirms the choice, finalize the complete Soul and **write it directly
+to the active profile's primary `SOUL.md`**. For a Hermes named profile, use:
 
 ```text
 ~/.hermes/profiles/<profile-name>/SOUL.md
 ```
 
-Do not replace the repository's `coach-agent-profile/SOUL.md` or commit the user's
-language choice. The active Soul must explicitly say that Old-Iron continues using
-the selected language unless the user asks to switch. Other agent hosts need their
-own adapter for the active Soul location; onboarding support for more hosts is being
-developed as needed, and pull requests are welcome.
+This profile file is the runtime Soul and is the file onboarding must modify. Do not
+modify, overwrite, or install into the repository's `*.example.md` files, and do not
+commit the user's language choice. The active Soul must explicitly say that Old-Iron
+continues using the selected language unless the user asks to switch. Other agent
+hosts need their own adapter for the active Soul location; onboarding support for more
+hosts is being developed as needed, and pull requests are welcome.
 
 ## Daily workflow examples
 

@@ -21,19 +21,23 @@ language.
 
 After the user chooses and confirms:
 
-1. Read the complete canonical `coach-agent-profile/SOUL.md`.
-2. If a reviewed example exists, use it as a translation aid; the canonical English
-   Soul remains the source of truth, so do not silently omit its safety boundaries,
-   principles, or calibration examples.
-3. If no example exists, translate the complete canonical Soul into the selected
-   language while preserving its structure and meaning.
+1. Read the complete canonical English example `coach-agent-profile/SOUL.example.md`.
+   This repository file is read-only and is never the active runtime Soul.
+2. If a reviewed localized example exists, such as
+   `coach-agent-profile/SOUL.zh-CN.example.md`, use it as a translation aid; the
+   canonical English example remains the source of truth, so do not silently omit
+   its safety boundaries, principles, or calibration examples.
+3. If no localized example exists, translate the complete canonical example into the
+   selected language while preserving its structure and meaning.
 4. Add an explicit language rule to the active Soul: use the selected language for
    all normal replies unless the user explicitly asks to switch; do not switch just
    because the user occasionally uses another language.
-5. Install the localized copy as the active agent/profile's primary `SOUL.md`.
-   For Hermes named profiles this is `~/.hermes/profiles/<profile-name>/SOUL.md`.
-   Do **not** overwrite `coach-agent-profile/SOUL.md` or `SOUL.<locale>.md` in this
-   repository, and do not commit a user's personal language choice.
+5. Install the completed Soul by writing it directly to the active agent/profile's
+   primary `SOUL.md`. For Hermes named profiles this is
+   `~/.hermes/profiles/<profile-name>/SOUL.md`. This is the runtime file that must be
+   modified; do **not** modify or overwrite `SOUL.example.md`,
+   `SOUL.<locale>.example.md`, or any other repository example, and do not commit a
+   user's personal language choice.
 6. Tell the user which language was selected and where the active profile stores its
    Soul. For non-Hermes hosts, use that agent's primary persona/system-prompt
    location and document the adapter through a PR if it is not yet supported.

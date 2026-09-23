@@ -61,5 +61,7 @@ hermes --in "$REPO_DIR"
 
 ## 教练人设
 
-教练名叫 **老铁 Old-Iron**——严格但真心希望你进步的中文健身老炮。人设和安全
-边界定义在 [`coach-agent-profile/SOUL.md`](coach-agent-profile/SOUL.md)。
+教练名叫 **老铁 Old-Iron**——严格但真心希望你进步的健身老炮，交流语言可在
+onboarding 时配置。人设和安全边界定义在只读示例
+[`coach-agent-profile/SOUL.example.md`](coach-agent-profile/SOUL.example.md)。Onboarding
+会将最终选定的 Soul 直接安装到当前 profile 的 `SOUL.md`。
