@@ -28,20 +28,36 @@ Plans and actual training are deliberately separate. Every daily check-in asks t
 user whether today is `training` or `rest`; no calendar or proposal can answer for
 them.
 
-## Quick start with a Hermes profile
+## Quick start with an example Hermes profile
+
+Hermes Agent is one example host for this repository. Onboarding integrations for
+other agents are being developed as needed; contributions and pull requests are
+welcome.
+
+If you use Hermes, create/select a dedicated profile:
 
 ```bash
 hermes profile create trainingcoach --description "Private modular fitness coach"
 hermes profile use trainingcoach
 hermes profile show trainingcoach
-hermes config edit
-hermes --in /absolute/path/to/training-coach-agent
 ```
 
-During `hermes config edit`, merge the settings from
+Then locate the directory where you cloned this repository. Replace the example
+path below with the absolute path printed by `pwd`:
+
+```bash
+cd /path/to/your/cloned/training-coach-agent
+REPO_DIR="$(pwd)"
+printf '%s\n' "$REPO_DIR"
+hermes config edit
+hermes --in "$REPO_DIR"
+```
+
+Merge the settings from
 [`coach-agent-profile/config.reference.yaml`](coach-agent-profile/config.reference.yaml)
-and replace its absolute path placeholder. Then tell the agent: `Read SETUP.md and
-get started`. To leave this profile later, run `hermes profile use default`.
+into the active profile and replace its path placeholders with `$REPO_DIR`'s actual
+value. Then tell the agent: `Read SETUP.md and get started`. To leave this profile
+later, run `hermes profile use default`.
 
 Runtime user data lives under `data/` and is Git-ignored. Credentials belong in the
 active Hermes profile or environment, never in this repository.

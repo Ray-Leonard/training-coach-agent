@@ -6,19 +6,22 @@
 #   hermes profile show trainingcoach
 #   hermes config edit
 #
-# Merge the settings below into the active profile config. Replace the placeholder
-# with the absolute repository path; do not copy credentials into this file.
+# Find the directory where you cloned this repository first:
+#   cd /path/to/your/cloned/training-coach-agent
+#   pwd
+# Replace both placeholders below with that printed absolute path. Do not copy
+# this example path literally, and do not copy credentials into this file.
 
 terminal:
-  cwd: /absolute/path/to/training-coach-agent
+  cwd: /your/actual/clone/path/training-coach-agent
 
 skills:
   external_dirs:
-    - /absolute/path/to/training-coach-agent/skills
+    - /your/actual/clone/path/training-coach-agent/skills
 
 # Start or resume the selected profile in the correct workspace:
-#   hermes --in /absolute/path/to/training-coach-agent
-#   hermes --in /absolute/path/to/training-coach-agent --resume latest
+#   hermes --in /your/actual/clone/path/training-coach-agent
+#   hermes --in /your/actual/clone/path/training-coach-agent --resume latest
 #
 # Model/provider credentials stay in the Hermes profile. Select them interactively:
 #   hermes model

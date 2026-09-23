@@ -5,29 +5,53 @@
 > Modules 3, 4, and 5 support daily use, but the full system is still under active
 > development. Keep a human in the loop and do not use it as medical advice.
 
-## Create and use a Hermes profile
+## Agent onboarding examples
 
-Run these commands with Hermes Agent installed:
+Hermes Agent is shown below only as an example host for this repository. Onboarding
+for other agents is being developed as needed; contributions and pull requests are
+welcome.
+
+If you use Hermes, first create/select a dedicated profile:
 
 ```bash
 hermes profile create trainingcoach --description "Private modular fitness coach"
 hermes profile use trainingcoach
 hermes profile show trainingcoach
-hermes config edit
 ```
 
-In the editor, merge `coach-agent-profile/config.reference.yaml` into the active
-profile config and replace `/absolute/path/to/training-coach-agent` with this
-repository's absolute path. Start the profile in the repository:
+Next, locate the directory where you cloned this repository. Do not copy the example
+path from this document literally:
 
 ```bash
-hermes --in /absolute/path/to/training-coach-agent
+cd /path/to/your/cloned/training-coach-agent
+REPO_DIR="$(pwd)"
+printf '%s\n' "$REPO_DIR"
+```
+
+Use the absolute path printed by `pwd` in the profile configuration. In
+`hermes config edit`, merge the relevant settings from
+`coach-agent-profile/config.reference.yaml`, replacing every path placeholder with
+that actual clone path:
+
+```yaml
+terminal:
+  cwd: /your/actual/clone/path/training-coach-agent
+
+skills:
+  external_dirs:
+    - /your/actual/clone/path/training-coach-agent/skills
+```
+
+Then start the agent in that same repository:
+
+```bash
+hermes --in "$REPO_DIR"
 ```
 
 For a one-shot onboarding check:
 
 ```bash
-hermes --in /absolute/path/to/training-coach-agent \
+hermes --in "$REPO_DIR" \
   -z "Read SETUP.md, AGENTS.md, and coach-agent-profile/SOUL.md; report the available modules without reading personal data."
 ```
 

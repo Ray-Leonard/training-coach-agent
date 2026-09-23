@@ -3,26 +3,36 @@
 Use `../scripts/calculate_tdee.py` for every age, BMR, TDEE, and macro
 calculation. Do not calculate these values in the model.
 
-## Onboarding (first-run setup)
+## Onboarding and profile review
 
-Called when the router detects a missing or empty `data/user/profile.json`.
+A missing or empty `data/user/profile.json` starts first-run onboarding. A profile
+whose `updated_at` is missing, invalid, or more than 30 days old starts with a
+non-destructive review prompt: ask whether the user wants to update the profile now.
+If they decline, show the existing profile and continue without changing it. Never
+silently recalculate or overwrite an existing profile.
+
+For a new profile, collect the following conversationally and reuse information the
+user has already provided:
 
 1. Ask: "What's your sex? (male/female)"
 2. Ask: "What's your birth date? (YYYY-MM-DD)"
 3. Ask: "What's your height in cm?"
 4. Ask: "What's your timezone?" (IANA format, e.g. "America/Toronto", "Asia/Shanghai"). All dates, timestamps, and daily cutoffs use this timezone.
-5. Ask: "Do you want to connect Xunji API?" Be ready to explain that
-   [Xunji](https://www.xunjiapp.com) is a Chinese iOS/Android fitness-tracking
-   app; API access requires Xunji VIP and automatically syncs body weight,
-   body-fat percentage, and body measurements. Manual entry works as a fallback.
-   If yes, explain how to add
-   `SYNFIT_BODY_DATA_API_KEY=<key>` to `.env`; never request that the key be
-   posted in chat.
+5. Ask whether the user wants to connect Xunji API. Explain that [Xunji](https://www.xunjiapp.com)
+   is optional, requires VIP for API access, and that manual entry remains fully supported.
+   If yes, explain how to add `SYNFIT_BODY_DATA_API_KEY=<key>` to `.env`; never request
+   that the key be posted in chat.
 6. Ask flexibly about the user's goal, accepting weight, body-fat percentage,
    measurements, or a plain-language outcome. Confirm whether it maps to
    `bulk`, `cut`, or `maintain`; if the user has no goal, use `maintain`. Never
    leave goal or macro fields empty.
-7. Continue to Goal Setup and always create a valid profile.
+7. Before asking for a replacement current weight, invite the user to import historical
+   body-log data. Ask whether they have an existing Xunji export, JSON/CSV file, or
+   another agent's body log that should be imported. Preserve the original source,
+   normalize only a reviewed copy into `data/user/body-log/YYYY-MM.json`, and never
+   import credentials or unrelated personal files. If there is already a local body
+   log, inspect its latest valid weight first.
+8. Continue to Goal Setup and always create a valid profile.
 
 ## Goal Setup
 
@@ -33,7 +43,11 @@ already provided instead of forcing a fixed questionnaire.
 
 1. Confirm goal type (`bulk`, `cut`, or `maintain`), then ask: “Is your goal
    based on weight, body fat percentage, or something else?”
-2. Ask for the current weight if it was not already provided. Store it as
+2. After offering historical body-log import, resolve the current weight in this order:
+   read the latest valid local body-log entry; if the user approves an import, review
+   the imported history and use its latest valid weight; otherwise ask the user for
+   the current weight. If Xunji or DEXA data is available, explain which source is
+   being used and let the user correct it. Store the confirmed value as
    `initial_weight_kg` and set `target_set_date` to today.
 3. Translate the user's goal into `target_weight_kg`:
    - Weight goal: use the requested target weight.

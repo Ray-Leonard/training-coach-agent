@@ -26,20 +26,35 @@
 系统严格区分训练计划和实际训练。每次日常打卡都要明确询问今天是 `training`
 还是 `rest`，不能由日历或计划替用户回答。
 
-## 使用独立 Hermes profile
+## 使用一个示例 Hermes profile
+
+Hermes Agent 只是本仓库的一种示例宿主。其他 Agent 的 onboarding 接入会按需
+开发，欢迎提交贡献和 PR。
+
+如果你使用 Hermes，可以创建并选择独立 profile：
 
 ```bash
 hermes profile create trainingcoach --description "Private modular fitness coach"
 hermes profile use trainingcoach
 hermes profile show trainingcoach
-hermes config edit
-hermes --in /absolute/path/to/training-coach-agent
 ```
 
-执行 `hermes config edit` 时，把
+然后先找到你实际 clone 本仓库的目录。下面的路径只是示例，必须替换成 `pwd`
+打印出的绝对路径：
+
+```bash
+cd /path/to/your/cloned/training-coach-agent
+REPO_DIR="$(pwd)"
+printf '%s\n' "$REPO_DIR"
+hermes config edit
+hermes --in "$REPO_DIR"
+```
+
+把
 [`coach-agent-profile/config.reference.yaml`](coach-agent-profile/config.reference.yaml)
-中的配置合并进去，并替换绝对路径占位符。进入会话后告诉 Agent：`Read SETUP.md
-and get started`。需要退出该 profile 时运行 `hermes profile use default`。
+中的配置合并到当前 profile，并将其中的路径占位符替换为 `$REPO_DIR` 的实际值。
+进入会话后告诉 Agent：`Read SETUP.md and get started`。需要退出该 profile 时运行
+`hermes profile use default`。
 
 运行时用户数据位于 `data/` 并由 Git 忽略。凭据只能放在当前 Hermes profile 或
 环境变量中，绝不能写入仓库。
