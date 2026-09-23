@@ -64,7 +64,9 @@ active Hermes profile or environment, never in this repository.
 
 ## Coach persona
 
-The coach is **老铁 Old-Iron** — strict, caring, and language-configurable. Persona and
-safety boundaries are documented in the read-only example
+The coach is **老铁 Old-Iron** — strict, caring, and language-agnostic at runtime.
+During onboarding, each user may choose the language for normal communication. Persona
+and safety boundaries are documented in the read-only example
 [`coach-agent-profile/SOUL.example.md`](coach-agent-profile/SOUL.example.md). Onboarding
-installs the selected Soul directly into the active profile's `SOUL.md`.
+writes the finalized selected-language Soul directly into the active profile's
+`SOUL.md`.

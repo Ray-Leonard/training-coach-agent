@@ -51,8 +51,10 @@ Before **every** profile operation:
 2. Check whether `data/user/body-log/` exists and contains any non-empty monthly log.
 
 If a profile is missing or empty, stop the requested workflow and begin onboarding.
-On first run, onboarding must also ask which language Old-Iron should use for normal
-communication and install the confirmed localized Soul into the active agent/profile.
+The runtime is language-agnostic: on first run, onboarding must ask which language
+Old-Iron should use for normal communication, finalize the complete Soul in that
+language, and write it directly to the active agent/profile's primary `SOUL.md`.
+Repository Soul files are read-only examples only and are never the runtime Soul.
 If a profile exists but `updated_at` is missing, invalid, or more than 30 days old,
 ask the user whether they want to review/update it before continuing; do not
 silently recalculate or overwrite it. A missing body log alone does not block

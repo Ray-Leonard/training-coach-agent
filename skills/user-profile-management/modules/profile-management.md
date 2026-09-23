@@ -15,9 +15,10 @@ silently recalculate or overwrite an existing profile.
 
 This is part of first-run onboarding and is separate from the user's timezone.
 Ask: **"Which language would you like Old-Iron to use for normal communication?"**
-Offer the languages for which the host has a reviewed Soul example, plus an
-other-language option. The user may choose English, Simplified Chinese, or another
-language.
+The runtime is language-agnostic: the user may choose any language. Reviewed
+repository examples (currently English and Simplified Chinese) are translation aids,
+not a restriction on the user's choice; provide an other-language path when no
+reviewed example exists.
 
 After the user chooses and confirms:
 
@@ -44,7 +45,7 @@ After the user chooses and confirms:
 
 This language choice belongs to the active profile persona, not to the training data
 profile schema. Changing languages later means regenerating and reinstalling the
-active profile Soul from the canonical template.
+active profile Soul from the canonical English example.
 
 For a new user profile, continue collecting the following conversationally and reuse
 information the user has already provided:

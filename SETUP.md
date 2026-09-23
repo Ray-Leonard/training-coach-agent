@@ -71,9 +71,10 @@ credentials in Hermes; do not copy them into this repository.
 ## Choose Old-Iron's communication language
 
 As part of user-profile onboarding, ask the user which language Old-Iron should use
-for normal communication. English and Simplified Chinese have read-only repository
-examples (`SOUL.example.md` and `SOUL.zh-CN.example.md`); other languages may be
-selected and translated from the complete canonical English example.
+for normal communication. The runtime is language-agnostic: the user may choose any
+language. English and Simplified Chinese have read-only repository examples
+(`SOUL.example.md` and `SOUL.zh-CN.example.md`) that can guide translation; they do
+not limit the available language choices.
 
 After the user confirms the choice, finalize the complete Soul and **write it directly
 to the active profile's primary `SOUL.md`**. For a Hermes named profile, use:
