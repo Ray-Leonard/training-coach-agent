@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "date": "YYYY-MM-DD",
+  "timezone": "IANA/Timezone",
+  "title": "Strength session",
+  "source": "manual",
+  "confirmation": {
+    "confirmed": true,
+    "source": "user",
+    "confirmed_at": "YYYY-MM-DDTHH:MM:SS+00:00"
+  },
+  "start_time": "YYYY-MM-DDTHH:MM:SS+00:00",
+  "end_time": "YYYY-MM-DDTHH:MM:SS+00:00",
+  "exercises": [
+    {
+      "name": "Back Squat",
+      "muscle_groups": ["quadriceps", "glutes"],
+      "sets": [
+        {
+          "reps": 5,
+          "weight_kg": 100,
+          "rpe": 8,
+          "rir": 2,
+          "notes": "controlled"
+        }
+      ]
+    }
+  ]
+}

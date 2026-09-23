@@ -49,7 +49,7 @@ nutrition-database-management/
 **Planned future modules** (these are now separate top-level skills in the unified training-coach-agent repo, NOT sub-modules here):
 - `diet-tracker` — daily food intake logging against user goals
 - `training-analyzer` — training session analysis and progression tracking
-- `user-profile-management` — body weight, goals, training split, TDEE calculation
+- `user-profile-management` — body weight, goals, weekly training metadata, TDEE calculation
 - `training-planning` — training plan design and adjustment
 - `monthly-summary` — monthly report generation
 - `proactive-reminder` — cron-based reminders

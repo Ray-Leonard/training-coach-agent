@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.1",
+  "date": "YYYY-MM-DD",
+  "timezone": "IANA/Timezone",
+  "training_status": null,
+  "training_status_confirmed": false,
+  "training_confirmation_source": null,
+  "meals": [
+    {
+      "id": "meal-generated-id",
+      "meal_name": "breakfast",
+      "food_name": "oats and yogurt",
+      "items": ["oats", "yogurt"],
+      "calories_kcal": 0,
+      "protein_g": 0,
+      "carbs_g": 0,
+      "fat_g": 0,
+      "source": "manual",
+      "timestamp": "YYYY-MM-DDTHH:MM:SS+00:00"
+    }
+  ],
+  "actual_expenditure_kcal": null,
+  "expenditure_source": null,
+  "notes": ""
+}

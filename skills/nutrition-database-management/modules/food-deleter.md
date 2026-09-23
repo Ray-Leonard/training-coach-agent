@@ -36,7 +36,7 @@ Files use **timestamp prefix** format `YYYYMMDD_HHMMSS`:
 
 ```
 data/nutrition/individual-food-data/processed-foods/condiments/20260405_143022-peanut-butter-smooth.md
-data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpg
+data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpeg
 ```
 
 ## Workflow
@@ -68,7 +68,7 @@ For the identified food, extract:
 - Timestamp from the matched filename
 - Expected filenames:
   - `data/nutrition/individual-food-data/{food-type}/{category}/{timestamp}-{food-name}.md`
-  - `data/nutrition/source-images/{timestamp}-{food-name}.jpg` (if image exists)
+  - `data/nutrition/source-images/{timestamp}-{food-name}.{jpg|jpeg|png}` (if image exists)
 
 #### Step 3: Confirm with User
 
@@ -79,7 +79,7 @@ I found this entry:
   - Food: [food-name]
   - Timestamp: [YYYYMMDD_HHMMSS]
   - Data file: data/nutrition/individual-food-data/[food-type]/[category]/[timestamp]-[food-name].md
-  - Image: data/nutrition/source-images/[timestamp]-[food-name].jpg (if exists)
+  - Image: data/nutrition/source-images/[timestamp]-[food-name].[jpg|jpeg|png] (if exists)
 
 Delete this? Reply "yes" to confirm.
 ```
@@ -90,7 +90,7 @@ Delete this? Reply "yes" to confirm.
 
 If user confirms:
 1. Delete the exact matched `data/nutrition/individual-food-data/{food-type}/{category}/{timestamp}-{food-name}.md`
-2. Delete `data/nutrition/source-images/{timestamp}-{food-name}.jpg` (if exists)
+2. Delete the matching `data/nutrition/source-images/{timestamp}-{food-name}.{ext}` file, if one exists
 
 #### Step 5: Verification
 

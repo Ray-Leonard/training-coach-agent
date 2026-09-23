@@ -1,22 +1,31 @@
-# Reference config for Hermes profile
-# Copy relevant sections to ~/.hermes/profiles/coach/config.yaml
-
-# --- Skills ---
-# Point Hermes at the project's skills directory
-# skills:
-#   external_dirs:
-#     - /home/ubuntu/workspace/training-coach-agent-old-iron/skills
-
-# --- Working Directory ---
-# Set to the repo root so AGENTS.md is auto-loaded
-# terminal:
-#   cwd: /home/ubuntu/workspace/training-coach-agent-old-iron
-
-# --- Model Suggestions ---
-# Use a cheap model for daily tracking (diet logging, weight updates)
-# model:
-#   default: deepseek/deepseek-chat
+# Reference settings for the dedicated Hermes profile.
 #
-# Switch to a powerful model for analysis (training planning, monthly reports)
-# model:
-#   default: anthropic/claude-sonnet-4
+# This file is used by the existing host Agent during Phase 0 — Agent Profile
+# Installation. After Phase 0.5 handoff, the Training Coach runtime follows
+# AGENTS.md and the active profile's SOUL.md; it does not read SETUP.md.
+#
+# Create/select the profile first:
+#   hermes profile create trainingcoach --description "Private modular fitness coach"
+#   hermes profile use trainingcoach
+#   hermes profile show trainingcoach
+#   hermes config edit
+#
+# Find the directory where you cloned this repository first:
+#   cd /path/to/your/cloned/training-coach-agent
+#   pwd
+# Replace both placeholders below with that printed absolute path. Do not copy
+# this example path literally, and do not copy credentials into this file.
+
+terminal:
+  cwd: /your/actual/clone/path/training-coach-agent
+
+skills:
+  external_dirs:
+    - /your/actual/clone/path/training-coach-agent/skills
+
+# Start or resume the selected profile in the correct workspace:
+#   hermes --in /your/actual/clone/path/training-coach-agent
+#   hermes --in /your/actual/clone/path/training-coach-agent --resume latest
+#
+# Model/provider credentials stay in the Hermes profile. Select them interactively:
+#   hermes model

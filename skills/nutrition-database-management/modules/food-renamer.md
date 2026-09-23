@@ -35,7 +35,7 @@ All files use **timestamp prefix** in format `YYYYMMDD_HHMMSS`:
 
 ```
 data/nutrition/individual-food-data/processed-foods/condiments/20260405_143022-peanut-butter-smooth.md
-data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpg
+data/nutrition/source-images/20260405_143022-peanut-butter-smooth.jpeg
 ```
 
 ### Food Name

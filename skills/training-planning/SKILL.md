@@ -1,23 +1,57 @@
+---
+name: training-planning
+description: "Use for generating, validating, confirming, and deriving deload variants of detailed training-plan proposals."
+version: 2.0.0
+---
+
 # Training Planning
 
-> Status: PENDING — stub created during repo scaffolding
-> Skill path: skills/training-planning/
+## When to use
 
-## Goal
+Use this skill for a new training program, detailed split, proposal confirmation,
+plan listing/loading, or a reduced-volume deload proposal.
 
-TODO: Fill in module goal and responsibilities.
+## Router
 
-## Structure
+| Intent | Read | Run |
+|---|---|---|
+| Generate or choose a split | `modules/training-plan-management.md` | `scripts/generate_plan.py` |
+| List, load, or explicitly confirm a proposal | `modules/training-plan-management.md` | `scripts/plan_manager.py` |
+| Create a reduced-volume variant | `modules/deload-plan.md` | `scripts/generate_deload.py` |
 
-TODO: Fill in module structure (SKILL.md, modules/, scripts/, references/).
+## Data ownership
 
-## ⚠️ Cross-Module Rules — MUST IMPLEMENT
+- Read `data/user/profile.json` for goal, timezone, and high-level weekly
+  training/cardio metadata.
+- May read Module 4 confirmed records/reports for discussion and future review tools.
+- Write only `data/training-plans/`.
+- Never modify the profile, body logs, diet data, or actual workout records.
+- Do not add `training_split` or detailed-plan fields to Module 2.
 
-When developing this module, you must follow these rules:
+## Proposal semantics
 
-1. **Data sandbox**: Read `data/user/profile.json` (Module 2) for goals, training_days, cardio settings — but NEVER write to it. Training plans go to `data/training/` or a dedicated `data/training-plans/` directory.
-2. **Timezone**: Read `timezone` from `data/user/profile.json`. All plan date references use this timezone.
-3. **Python scripts**: All programming logic (periodization, volume calculations, deload scheduling) uses Python scripts.
-4. **Training split**: Detailed split design (3-day PPL, 5-day bro split, 5×5, etc.) lives here. Module 2 only stores meta info (training_days_per_week, cardio_*).
-5. **Beginner-friendly**: If the user doesn't know what split they want, suggest options based on their goal and training_days_per_week. Never force them to choose.
-5. **Data presentation**: When showing data to the user, read files with `read_file` and present formatted inline. Never use Python scripts or raw dumps for user-facing output. Scripts are for calculations and writes only.
+Every generated plan has `status: proposed` and unconfirmed metadata. The agent must
+discuss it with the user. Only `plan_manager.py confirm ... --confirmed` changes that
+plan file to `confirmed`; this still does not claim any workout happened. Every day
+continues to carry `user_confirmation_required: true`.
+
+If no split is requested, the generator recommends `full-body`, `ppl`, or
+`upper-lower` from weekly strength frequency and labels the recommendation. The user
+may choose another supported split without changing the profile schema.
+
+All scheduling and set-reduction arithmetic is performed by Python.
+
+## Files
+
+```text
+skills/training-planning/
+├── SKILL.md
+├── modules/
+│   ├── deload-plan.md
+│   └── training-plan-management.md
+├── references/training-plan.template.json
+└── scripts/
+    ├── generate_deload.py
+    ├── generate_plan.py
+    └── plan_manager.py
+```

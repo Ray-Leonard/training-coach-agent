@@ -1,2 +1,9 @@
 .env
 __pycache__/
+*.py[cod]
+.hermes/
+
+# Runtime user data is private. Keep only directory markers in version control.
+data/**
+!data/**/
+!data/**/.gitkeep

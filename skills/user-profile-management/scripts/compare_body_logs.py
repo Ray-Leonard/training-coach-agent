@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterable, Mapping, Tuple
 
 
 RecordKey = Tuple[Any, Any]
+COMPARISON_FIELDS = ("value", "unit", "source", "xunji_id")
 
 
 def _index_records(records: Iterable[Mapping[str, Any]]) -> Dict[RecordKey, Mapping[str, Any]]:
@@ -34,7 +35,10 @@ def count_diff(
         local_record = local.get(key)
         if local_record is None:
             new_count += 1
-        elif merged_record.get("value") != local_record.get("value"):
+        elif any(
+            merged_record.get(field) != local_record.get(field)
+            for field in COMPARISON_FIELDS
+        ):
             changed_count += 1
         else:
             unchanged_count += 1

@@ -37,6 +37,19 @@ Triggered by input such as “我今天 85kg” or “my bodyfat is 18%”.
    `python3 ../scripts/body_log.py log weight 85.0 kg`
 5. Report: "✅ Logged weight 85.0 kg on 2026-07-27 to `data/user/body-log/2026-07.json`".
 
+## Historical body-log import during onboarding
+
+Before asking the user to provide a replacement current weight, invite them to import
+historical body data. Ask whether they have an Xunji export, JSON/CSV file, or a body
+log maintained by another agent. Preview the source and explain the normalization
+before writing; preserve the original file and write only the reviewed canonical
+records to `data/user/body-log/YYYY-MM.json`. Never import credentials or unrelated
+personal files.
+
+If the user approves Xunji sync, follow the confirmation workflow below. If they
+provide a local export, route it through a reviewed normalization step and then use
+`body_log.py`/`sync_body_data.py` for validated writes. The latest valid imported
+weight can then be proposed as `initial_weight_kg`, but the user must confirm it.
 ## Sync from Xunji API
 
 Triggered by “sync body data”, “拉训记数据”, or “sync from Xunji”.

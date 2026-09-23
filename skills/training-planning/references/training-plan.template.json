@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "id": "YYYY-MM-DD-N-day-plan",
+  "title": "N-day training plan",
+  "plan_type": "standard",
+  "status": "proposed",
+  "confirmation": {
+    "confirmed": false,
+    "source": null,
+    "confirmed_at": null
+  },
+  "generated_at": "YYYY-MM-DDTHH:MM:SS+00:00",
+  "timezone": "IANA/Timezone",
+  "start_date": "YYYY-MM-DD",
+  "end_date": "YYYY-MM-DD",
+  "days": 10,
+  "split": {
+    "name": "upper-lower",
+    "recommended_by_generator": true,
+    "rationale": ""
+  },
+  "source_profile": {
+    "goal": "cut",
+    "target_weight_kg": null,
+    "training_days_per_week": 0,
+    "cardio_days_per_week": 0,
+    "cardio_minutes_per_session": 0
+  },
+  "safety_notes": [],
+  "daily_schedule": []
+}
