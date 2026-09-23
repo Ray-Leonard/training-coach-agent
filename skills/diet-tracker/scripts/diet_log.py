@@ -111,6 +111,7 @@ def validate_day(day: Dict[str, Any], *, expected_date: Optional[str] = None) ->
     timezone = day.get("timezone")
     if not isinstance(timezone, str) or not timezone.strip():
         raise ValueError("daily diet record timezone must be a non-empty string")
+    profile_timezone({"timezone": timezone})
     status = day.get("training_status")
     confirmed = day.get("training_status_confirmed")
     if status is not None and status not in VALID_TRAINING_STATUSES:
@@ -119,6 +120,13 @@ def validate_day(day: Dict[str, Any], *, expected_date: Optional[str] = None) ->
         raise ValueError("training_status_confirmed must be boolean")
     if status is None and confirmed:
         raise ValueError("training_status cannot be confirmed while it is null")
+    confirmation_source = day.get("training_confirmation_source")
+    if confirmed and (
+        not isinstance(confirmation_source, str) or not confirmation_source.strip()
+    ):
+        raise ValueError(
+            "training_confirmation_source is required for a confirmed training status"
+        )
     meals = day.get("meals")
     if not isinstance(meals, list):
         raise ValueError("meals must be a list")

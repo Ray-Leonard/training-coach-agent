@@ -171,6 +171,33 @@ class Task449TestCase(unittest.TestCase):
                 root=root,
             )
 
+    def test_malformed_camp_and_timezone_fail_as_validation_errors(self):
+        root = self.make_root()
+        path = cut_camp.init_camp(
+            start_date="2026-01-10",
+            days=1,
+            target_deficit_kcal=700,
+            slug="validation-camp",
+            root=root,
+        )
+        camp = json.loads(path.read_text(encoding="utf-8"))
+        camp["entries"] = [None]
+        path.write_text(json.dumps(camp), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "JSON object"):
+            cut_camp.camp_summary(path.name, root=root)
+
+        camp["entries"] = [{"date": "2026-01-10"}]
+        camp["timezone"] = "Not/IANA"
+        path.write_text(json.dumps(camp), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Unknown IANA timezone"):
+            cut_camp.camp_summary(path.name, root=root)
+
+        profile = json.loads((root / "data" / "user" / "profile.json").read_text())
+        day = diet_log._default_day("2026-01-10", profile)
+        day["timezone"] = "Not/IANA"
+        with self.assertRaisesRegex(ValueError, "Unknown IANA timezone"):
+            diet_log.validate_day(day)
+
     def test_plan_is_ten_days_and_does_not_modify_profile(self):
         root = self.make_root()
         profile_path = root / "data" / "user" / "profile.json"

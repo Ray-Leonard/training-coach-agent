@@ -9,6 +9,7 @@ import re
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 try:
     from .common import (
@@ -107,16 +108,37 @@ def validate_camp(camp: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError(f"camp is missing fields: {', '.join(sorted(missing))}")
     start = date.fromisoformat(parse_iso_date(camp["start_date"], "start_date"))
     end = date.fromisoformat(parse_iso_date(camp["end_date"], "end_date"))
-    days = int(camp["days"])
+    raw_days = camp["days"]
+    if isinstance(raw_days, bool) or not isinstance(raw_days, int):
+        raise ValueError("camp.days must be an integer")
+    days = raw_days
     if days < 1 or days > 31 or end != start + timedelta(days=days - 1):
         raise ValueError("camp date range and days are inconsistent")
-    finite_number(camp["target_daily_deficit_kcal"], "target_daily_deficit_kcal", minimum=0.01)
-    finite_number(camp["baseline_tdee_kcal"], "baseline_tdee_kcal", minimum=0.01)
-    finite_number(camp["target_intake_kcal"], "target_intake_kcal", minimum=0.01)
+    target_deficit = finite_number(
+        camp["target_daily_deficit_kcal"], "target_daily_deficit_kcal", minimum=0.01
+    )
+    baseline_tdee = finite_number(camp["baseline_tdee_kcal"], "baseline_tdee_kcal", minimum=0.01)
+    target_intake = finite_number(camp["target_intake_kcal"], "target_intake_kcal", minimum=0.01)
+    if abs(target_intake - round(baseline_tdee - target_deficit)) > 0.01:
+        raise ValueError("target_intake_kcal is inconsistent with baseline TDEE and target deficit")
+    timezone = camp["timezone"]
+    if not isinstance(timezone, str) or not timezone.strip():
+        raise ValueError("camp.timezone must be a non-empty IANA timezone")
+    try:
+        ZoneInfo(timezone)
+    except ZoneInfoNotFoundError as exc:
+        raise ValueError(f"Unknown IANA timezone: {timezone}") from exc
     if not isinstance(camp["entries"], list) or len(camp["entries"]) != days:
         raise ValueError("camp entries must contain exactly one entry per camp day")
     expected = [start + timedelta(days=index) for index in range(days)]
-    actual = [date.fromisoformat(parse_iso_date(entry.get("date"), "entry.date")) for entry in camp["entries"]]
+    actual = []
+    for entry in camp["entries"]:
+        if not isinstance(entry, dict):
+            raise ValueError("each camp entry must be a JSON object")
+        entry_date = entry.get("date")
+        if not isinstance(entry_date, str):
+            raise ValueError("entry.date must use YYYY-MM-DD format")
+        actual.append(date.fromisoformat(parse_iso_date(entry_date, "entry.date")))
     if actual != expected:
         raise ValueError("camp entries must be consecutive and match the camp range")
     return camp
